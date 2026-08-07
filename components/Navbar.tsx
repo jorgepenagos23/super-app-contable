@@ -65,10 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium uppercase tracking-widest text-emerald-700">Grupo MV</span>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-normal">
-                Super App Contable
-              </span>
+              <span className="text-xs font-medium uppercase tracking-widest text-slate-800">Grupo MV</span>
             </div>
             <h1 className="text-sm sm:text-base font-normal tracking-tight text-slate-800 truncate max-w-[200px] sm:max-w-md">
               {getModuleTitle()}
@@ -86,7 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
                 activeModule === 'hub'
                   ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
-                  : 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100'
+                  : 'bg-blue-50 border-blue-200 text-blue-950 hover:bg-blue-100'
               }`}
               title="Volver al Centro de Control de Módulos"
             >
@@ -96,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
 
           <div className="hidden lg:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-normal">
-            <div className={`w-2.5 h-2.5 rounded-full ${erpConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+            <div className={`w-2.5 h-2.5 rounded-full ${erpConnected ? 'bg-blue-600 animate-pulse' : 'bg-amber-500'}`} />
             <span className="text-slate-600 font-normal">ERP Grupo MV:</span>
             <span className="font-medium text-slate-900">
               {isLoadingERP ? 'Cargando...' : `${erpCount} compras`}
@@ -107,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onRefreshERP}
               disabled={isLoadingERP}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-all shadow-2xs disabled:opacity-50 active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-900 hover:bg-blue-950 text-white text-xs font-medium transition-all shadow-2xs disabled:opacity-50 active:scale-95 cursor-pointer"
               title="Actualizar información de compras del ERP"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoadingERP ? 'animate-spin' : ''}`} />

@@ -192,29 +192,29 @@ export default function Home() {
                 {/* 2. Rango de Fechas ERP (4 cols) */}
                 <div className="md:col-span-4 bg-white p-2.5 rounded-xl border border-slate-200 flex flex-col gap-1 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="text-[11px] font-medium text-slate-700 uppercase tracking-wider flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-blue-900" />
                       Rango Fechas ERP:
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <span className="text-[10px] text-slate-500 font-semibold block">Inicio:</span>
+                      <span className="text-[10px] text-slate-500 font-normal block">Inicio:</span>
                       <input
                         type="date"
                         value={fechaInicial}
                         onChange={(e) => setFechaInicial(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs font-normal text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-900"
                       />
                     </div>
                     <div>
-                      <span className="text-[10px] text-slate-500 font-semibold block">Fin:</span>
+                      <span className="text-[10px] text-slate-500 font-normal block">Fin:</span>
                       <input
                         type="date"
                         value={fechaFinal}
                         onChange={(e) => setFechaFinal(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs font-normal text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-900"
                       />
                     </div>
                   </div>
@@ -231,9 +231,9 @@ export default function Home() {
                       handleStartReconciliation();
                     }}
                     disabled={!isFileReady || isLoading}
-                    className={`w-full py-2.5 px-4 font-medium text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 border ${
+                    className={`w-full py-2.5 px-4 font-medium text-xs rounded-xl shadow-2xs transition-all flex items-center justify-center gap-2 border ${
                       isFileReady
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer active:scale-[0.98] border-emerald-600'
+                        ? 'bg-blue-900 hover:bg-blue-950 text-white cursor-pointer active:scale-[0.98] border-blue-900'
                         : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
                     }`}
                     title={isFileReady ? 'Ejecutar Conciliación SAT vs ERP' : 'Cargue primero un archivo Excel del SAT'}
@@ -251,19 +251,19 @@ export default function Home() {
                     )}
                   </button>
 
-                  <span className="text-[10px] text-center text-slate-400 font-medium">
-                    {isFileReady ? '🟢 Archivo cargado • Por Conciliar' : '⚠️ Archivo Excel requerido'}
+                  <span className="text-[10px] text-center text-slate-400 font-normal">
+                    {isFileReady ? '🔵 Archivo cargado • Por Conciliar' : '⚠️ Archivo Excel requerido'}
                   </span>
                 </div>
               </div>
 
               {/* Banner Informativo Conciso "Por Conciliar" */}
               {isFileReady && !resultado && !isLoading && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between text-xs text-emerald-900 shadow-xs font-bold">
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between text-xs text-blue-950 shadow-2xs font-normal">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0 animate-pulse" />
                     <span>
-                      📄 <strong>{fileName}</strong> ({satData.length.toLocaleString('es-MX')} facturas) — <span className="text-emerald-700">Listo para conciliar</span>
+                      📄 <strong>{fileName}</strong> ({satData.length.toLocaleString('es-MX')} facturas) — <span className="text-blue-900 font-medium">Listo para conciliar</span>
                     </span>
                   </div>
                 </div>

@@ -91,12 +91,12 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
       {/* Header Limpio */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <div>
-          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium border border-emerald-200 flex items-center gap-1.5 w-fit">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-950 text-xs font-medium border border-blue-200 flex items-center gap-1.5 w-fit">
+            <CheckCircle2 className="w-3.5 h-3.5 text-blue-900" />
             Compras Conciliadas SAT vs FROG ERP
           </span>
           <h3 className="text-xl font-normal text-slate-900 tracking-tight mt-1 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-emerald-600" />
+            <Building2 className="w-5 h-5 text-blue-900" />
             Conciliaciones Exitosas por Proveedor
           </h3>
           <p className="text-xs text-slate-500 mt-0.5 font-normal">
@@ -104,17 +104,17 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-4 bg-emerald-50 px-4 py-2.5 rounded-2xl border border-emerald-200 shadow-xs flex-wrap sm:flex-nowrap">
-          <div className="text-right border-b sm:border-b-0 sm:border-r border-emerald-200 pb-2 sm:pb-0 sm:pr-4">
-            <span className="text-[10px] uppercase font-normal text-emerald-800 block">Total Conciliado SAT</span>
+        <div className="flex items-center gap-4 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 shadow-2xs flex-wrap sm:flex-nowrap">
+          <div className="text-right border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0 sm:pr-4">
+            <span className="text-[10px] uppercase font-normal text-slate-600 block">Total Conciliado SAT</span>
             {/* MONTO EN NEGRITA DESTACADA */}
-            <span className="text-base font-black text-emerald-950">{formatCurrency(montoTotalConciliadas)}</span>
+            <span className="text-base font-black text-slate-950">{formatCurrency(montoTotalConciliadas)}</span>
           </div>
 
-          <div className="text-right border-b sm:border-b-0 sm:border-r border-emerald-200 pb-2 sm:pb-0 sm:pr-4">
-            <span className="text-[10px] uppercase font-normal text-teal-800 block">Total Conciliado FROG</span>
+          <div className="text-right border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0 sm:pr-4">
+            <span className="text-[10px] uppercase font-normal text-blue-900 block">Total Conciliado FROG</span>
             {/* MONTO EN NEGRITA DESTACADA */}
-            <span className="text-base font-black text-teal-950">{formatCurrency(montoTotalERPConciliadas)}</span>
+            <span className="text-base font-black text-blue-950">{formatCurrency(montoTotalERPConciliadas)}</span>
           </div>
 
           <div className="text-right">

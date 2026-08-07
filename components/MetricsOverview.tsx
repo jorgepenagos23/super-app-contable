@@ -23,11 +23,11 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({ metricas }) =>
     <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 my-6">
 
       {/* Card 1: Conciliadas */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs relative overflow-hidden transition-all">
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xs relative overflow-hidden transition-all">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-700 uppercase tracking-wider">Conciliadas</span>
-          <div className="p-2 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <CheckCircle className="w-4 h-4 text-emerald-600" />
+          <div className="p-2 rounded-2xl bg-blue-50 text-blue-900 border border-blue-200">
+            <CheckCircle className="w-4 h-4 text-blue-900" />
           </div>
         </div>
         <div className="mt-4">
@@ -35,13 +35,13 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({ metricas }) =>
             {metricas.conciliadasCount} <span className="text-xs font-normal text-slate-500">facturas</span>
           </div>
           {/* MONTO EN NEGRITA DESTACADA */}
-          <div className="text-xl font-black text-emerald-700 mt-1">
+          <div className="text-xl font-black text-blue-900 mt-1">
             {formatMoney(metricas.montoConciliadas)}
           </div>
         </div>
         <div className="mt-4 text-xs text-slate-500 flex items-center justify-between border-t border-slate-100 pt-3 font-normal">
           <span>Coincidencia por UUID / Impuesto</span>
-          <span className="text-emerald-700 font-medium">100% OK</span>
+          <span className="text-blue-900 font-medium">100% OK</span>
         </div>
       </div>
 
