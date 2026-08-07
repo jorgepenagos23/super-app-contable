@@ -37,8 +37,8 @@ export const AccountantHub: React.FC<AccountantHubProps> = ({
     features: string[];
   } = {
     id: 'conciliacion',
-    title: 'Conciliación Compras PARAL vs. SAT',
-    subtitle: 'Auditoría y Cruce Automatizado de Facturación ERP',
+    title: 'Auditoría y Cruce Fiscal de Compras (CFDI vs. ERP)',
+    subtitle: 'Auditoría y Comprensión Automatizada de Facturación y Recepción ERP',
     description: 'Herramienta institucional para el cotejo masivo de auxiliares de compras (Excel/XML) contra los registros ERP de Grupo MV y la base de datos fiscal.',
     badge: '🟢 Operativo / Producción',
     normativa: 'Art. 28 CFF (Contabilidad Fiscal) & Anexo 20 del SAT',

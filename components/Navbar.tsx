@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const getModuleTitle = () => {
     switch (activeModule) {
       case 'conciliacion':
-        return 'Conciliación Compras PARAL vs SAT';
+        return 'Auditoría y Cruce Fiscal de Compras (CFDI vs ERP)';
       case 'auditoria_sat':
         return 'Auditoría CFDI & Validador SAT 69-B';
       case 'impuestos':
