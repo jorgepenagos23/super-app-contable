@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ItemConciliado } from '@/types/reconciliation';
+import { ItemConciliado, ProveedorResumen } from '@/types/reconciliation';
 import { InvoiceAuditModal } from './InvoiceAuditModal';
+import { SupplierConfigModal } from './SupplierConfigModal';
 import { useSupplierProfiles } from '@/hooks/useSupplierProfiles';
 import { getSupplierBrandLogo } from '@/lib/supplier-logos';
-import { Building2, ChevronDown, ChevronUp, FileCheck, Eye, CheckCircle2 } from 'lucide-react';
+import { Building2, ChevronDown, ChevronUp, FileCheck, Eye, CheckCircle2, Edit3, Image as ImageIcon } from 'lucide-react';
 
 interface SupplierGroup {
   nombreEmisor: string;
@@ -29,7 +30,9 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 }) => {
   const [expandedSupplier, setExpandedSupplier] = useState<string | null>(null);
   const [selectedAuditInvoice, setSelectedAuditInvoice] = useState<ItemConciliado | null>(null);
-  const { getProfile } = useSupplierProfiles();
+  const [editingSupplierKey, setEditingSupplierKey] = useState<string | null>(null);
+
+  const { getProfile, saveProfile, deleteProfile } = useSupplierProfiles();
 
   if (!conciliadas || conciliadas.length === 0) return null;
 
@@ -72,6 +75,17 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 
   proveedoresList.sort((a, b) => b.montoTotalSAT - a.montoTotalSAT);
 
+  // Mapear para el modal de configuración
+  const opcionesProveedoresResumen: ProveedorResumen[] = proveedoresList.map((p) => ({
+    nombre: p.nombreEmisor,
+    rfc: p.rfcEmisor,
+    facturasCount: p.facturasCount,
+    montoTotalSAT: p.montoTotalSAT,
+    montoTotalERP: p.montoTotalERP,
+    diferenciaTotal: p.diferenciaTotal,
+    porcentajeDelTotal: p.porcentajeDelTotal,
+  }));
+
   const montoTotalERPConciliadas = conciliadas.reduce((acc, i) => acc + i.totalERP, 0);
   const diferenciaTotalConciliadas = Math.abs(montoTotalConciliadas - montoTotalERPConciliadas);
 
@@ -88,13 +102,35 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
         factura={selectedAuditInvoice}
       />
 
+      {/* Modal de Edición de Logotipos y Configuración de Proveedores */}
+      <SupplierConfigModal
+        isOpen={Boolean(editingSupplierKey)}
+        onClose={() => setEditingSupplierKey(null)}
+        opcionesProveedores={opcionesProveedoresResumen}
+        initialSupplier={editingSupplierKey || ''}
+        onSaveProfile={saveProfile}
+        getProfile={getProfile}
+        onDeleteProfile={deleteProfile}
+      />
+
       {/* Header Limpio */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <div>
-          <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-950 text-xs font-medium border border-blue-200 flex items-center gap-1.5 w-fit">
-            <CheckCircle2 className="w-3.5 h-3.5 text-blue-900" />
-            Compras Conciliadas SAT vs FROG ERP
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-950 text-xs font-medium border border-blue-200 flex items-center gap-1.5 w-fit">
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-900" />
+              Compras Conciliadas SAT vs FROG ERP
+            </span>
+            <button
+              onClick={() => setEditingSupplierKey(proveedoresList[0]?.rfcEmisor || proveedoresList[0]?.nombreEmisor || '')}
+              className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium border border-slate-200 transition-colors flex items-center gap-1 cursor-pointer"
+              title="Personalizar logotipos de proveedores"
+            >
+              <ImageIcon className="w-3 h-3 text-slate-600" />
+              <span>Editar Logotipos</span>
+            </button>
+          </div>
+
           <h3 className="text-xl font-normal text-slate-900 tracking-tight mt-1 flex items-center gap-2">
             <Building2 className="w-5 h-5 text-blue-900" />
             Conciliaciones Exitosas por Proveedor
@@ -107,19 +143,16 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
         <div className="flex items-center gap-4 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 shadow-2xs flex-wrap sm:flex-nowrap">
           <div className="text-right border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0 sm:pr-4">
             <span className="text-[10px] uppercase font-normal text-slate-600 block">Total Conciliado SAT</span>
-            {/* MONTO EN NEGRITA DESTACADA */}
             <span className="text-base font-black text-slate-950">{formatCurrency(montoTotalConciliadas)}</span>
           </div>
 
           <div className="text-right border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0 sm:pr-4">
             <span className="text-[10px] uppercase font-normal text-blue-900 block">Total Conciliado FROG</span>
-            {/* MONTO EN NEGRITA DESTACADA */}
             <span className="text-base font-black text-blue-950">{formatCurrency(montoTotalERPConciliadas)}</span>
           </div>
 
           <div className="text-right">
             <span className="text-[10px] uppercase font-normal text-slate-600 block">Diferencia Neta</span>
-            {/* MONTO CON DIFERENCIA EN ROJO SI ES MAYOR A 1 PESO ($1.00) */}
             <span className={`text-base font-black ${diferenciaTotalConciliadas > 1.00 ? 'text-rose-600' : 'text-slate-800'}`}>
               {formatCurrency(diferenciaTotalConciliadas)}
             </span>
@@ -133,11 +166,12 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
           const isExpanded = expandedSupplier === prov.rfcEmisor;
           const profile = getProfile(prov.rfcEmisor || prov.nombreEmisor);
           const logoUrl = getSupplierBrandLogo(prov.nombreEmisor, prov.rfcEmisor, profile?.logoUrl);
+          const currentKey = prov.rfcEmisor || prov.nombreEmisor;
 
           return (
             <div
               key={prov.rfcEmisor || index}
-              className="border border-slate-200 rounded-2xl overflow-hidden transition-all bg-white hover:border-emerald-400 shadow-xs"
+              className="border border-slate-200 rounded-2xl overflow-hidden transition-all bg-white hover:border-blue-400 shadow-xs group/card"
             >
               {/* Fila del Proveedor */}
               <div
@@ -147,8 +181,15 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                 {/* Logo & Identificación */}
                 <div className="flex items-center gap-4 min-w-0 flex-1">
                   
-                  {/* Badge de Logotipo */}
-                  <div className="relative w-12 h-12 rounded-2xl bg-white text-slate-900 font-medium text-sm flex items-center justify-center shrink-0 border border-slate-200 shadow-sm overflow-hidden p-1">
+                  {/* Badge de Logotipo Interactivo para Edición Directa */}
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingSupplierKey(currentKey);
+                    }}
+                    className="relative w-12 h-12 rounded-2xl bg-white text-slate-900 font-medium text-sm flex items-center justify-center shrink-0 border border-slate-200 shadow-sm overflow-hidden p-1 group/logo cursor-pointer hover:border-blue-500 transition-all"
+                    title="Haga clic para cambiar o subir el logotipo del proveedor"
+                  >
                     {logoUrl ? (
                       <img
                         src={logoUrl}
@@ -163,6 +204,11 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                         {prov.nombreEmisor.slice(0, 2).toUpperCase()}
                       </span>
                     )}
+
+                    {/* Overlay al pasar el mouse para Editar Logo */}
+                    <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover/logo:opacity-100 flex items-center justify-center transition-opacity text-white">
+                      <Edit3 className="w-4 h-4 text-white" />
+                    </div>
                   </div>
 
                   <div className="min-w-0 flex-1">
@@ -173,12 +219,24 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                       <span className="px-2 py-0.5 rounded text-[10px] font-normal bg-slate-100 text-slate-600 border border-slate-200 font-mono">
                         {prov.rfcEmisor || 'Sin RFC'}
                       </span>
+                      
+                      {/* Botón rápido para editar logo y datos del proveedor */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingSupplierKey(currentKey);
+                        }}
+                        className="p-1 text-slate-400 hover:text-blue-900 transition-colors opacity-80 group-hover/card:opacity-100 cursor-pointer"
+                        title="Editar logotipo de este proveedor"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
 
                     <div className="flex items-center gap-3 mt-1.5">
                       <div className="w-36 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
                         <div
-                          className="bg-emerald-600 h-2 rounded-full transition-all"
+                          className="bg-blue-900 h-2 rounded-full transition-all"
                           style={{ width: `${Math.min(100, prov.porcentajeDelTotal)}%` }}
                         />
                       </div>
@@ -196,7 +254,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                   <div className="text-right">
                     <span className="text-[10px] font-normal text-slate-500 uppercase block">Facturas</span>
                     <span className="text-xs font-medium text-slate-800 flex items-center gap-1 justify-end">
-                      <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <FileCheck className="w-3.5 h-3.5 text-blue-900" />
                       {prov.facturasCount}
                     </span>
                   </div>
@@ -211,8 +269,8 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 
                   {/* Total FROG ERP Conciliado (MONTO EN NEGRITA) */}
                   <div className="text-right min-w-[110px]">
-                    <span className="text-[10px] font-normal text-emerald-700 uppercase block">Total FROG ($)</span>
-                    <span className="text-xs font-black text-emerald-800">
+                    <span className="text-[10px] font-normal text-blue-900 uppercase block">Total FROG ($)</span>
+                    <span className="text-xs font-black text-blue-950">
                       {formatCurrency(prov.montoTotalERP)}
                     </span>
                   </div>
@@ -231,7 +289,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                       e.stopPropagation();
                       setExpandedSupplier(isExpanded ? null : prov.rfcEmisor);
                     }}
-                    className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+                    className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer"
                   >
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
@@ -245,7 +303,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                     <span className="text-xs font-medium text-slate-800">
                       Facturas conciliadas de {prov.nombreEmisor}:
                     </span>
-                    <span className="text-[10px] font-normal text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <span className="text-[10px] font-normal text-blue-900 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
                       Haga clic en cualquier renglón para auditar la factura en FROG ERP
                     </span>
                   </div>
@@ -279,7 +337,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                             <td className="px-3 py-2 text-right font-black text-slate-900">
                               {formatCurrency(fact.totalSAT)}
                             </td>
-                            <td className="px-3 py-2 text-right font-black text-emerald-800">
+                            <td className="px-3 py-2 text-right font-black text-blue-950">
                               {formatCurrency(fact.totalERP)}
                             </td>
                             <td className={`px-3 py-2 text-right font-black ${fact.diferencia > 1.00 ? 'text-rose-600' : 'text-slate-700'}`}>
@@ -291,7 +349,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                                   e.stopPropagation();
                                   setSelectedAuditInvoice(fact);
                                 }}
-                                className="p-1 rounded-lg bg-emerald-100 text-emerald-800 group-hover:bg-emerald-600 group-hover:text-white transition-all"
+                                className="p-1 rounded-lg bg-blue-100 text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-all"
                                 title="Ver comparativo detallado"
                               >
                                 <Eye className="w-3.5 h-3.5" />
