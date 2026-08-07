@@ -310,8 +310,8 @@ export function reconcile(
 
     if (matchIdx !== -1) {
       erpVisited.add(matchIdx);
-      const erpMatch = erpList[matchIdx];
-      const dif = Math.abs(sat.total - erpMatch.total);
+      const rawDif = Math.abs(sat.total - erpMatch.total);
+      const dif = rawDif <= 0.05 ? 0 : Number(rawDif.toFixed(2));
 
       conciliadas.push({
         uuid: sat.uuid,
@@ -321,7 +321,7 @@ export function reconcile(
         fechaERP: erpMatch.fecha || sat.fecha,
         totalSAT: sat.total,
         totalERP: erpMatch.total,
-        diferencia: Number(dif.toFixed(2)),
+        diferencia: dif,
         estatusSAT: sat.estatus,
         metodoPagoSAT: sat.metodoPago,
         tipoCoincidencia: matchType,
