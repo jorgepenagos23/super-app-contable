@@ -1,38 +1,61 @@
-# super-app-contable
+# 📊 Super App Contable - Conciliación Fiscal & ERP
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Una aplicación web moderna e intuitiva desarrollada con **Next.js 16**, **React 19** y **Tailwind CSS** para la conciliación automatizada de facturas, auditoría de compras y validación de registros entre archivos Excel/XML y sistemas ERP.
 
-## Getting Started
+---
 
-First, run the development server:
+## 📸 Capturas de Pantalla y Vista Previa
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 1. Dashboard Principal y Métricas
+Visualización general del estado financiero con tarjetas de métricas en tiempo real, tabla de facturas conciliadas vs. pendientes y sistema de pestañas de filtrado.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+![Dashboard Principal](public/screenshots/dashboard.png)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Modal de Auditoría y Conciliación
+Herramienta de auditoría detallada que compara datos de facturas cargadas con los registros ERP, mostrando porcentajes de coincidencia, desgloses de impuestos y acciones manuales de conciliación.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+![Modal de Auditoría](public/screenshots/audit_modal.png)
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ✨ Características Principales
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- 📁 **Carga Inteligente de Archivos**: Procesamiento rápido de hojas de cálculo de facturas y archivos de compras (Excel / CSV / XML).
+- 🔄 **Motor de Conciliación Automática**: Algoritmo de emparejamiento de facturas con registros ERP por folio, monto, RFC/proveedor e impuestos.
+- 📈 **Métricas y Resumen de Proveedores**: Tarjetas dinámicas con totales facturados, montos conciliados, discrepancias identificadas y desgloses por proveedor.
+- 🔍 **Auditoría Detallada**: Inspección individual de facturas para analizar discrepancias y aprobar conciliaciones con un solo clic.
+- 🔐 **Control de Acceso e Integraciones**: Modales dedicados para gestión de usuarios, roles de acceso y credenciales de integración API.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🚀 Inicio Rápido
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Prerrequisitos
+- Node.js 18.x o superior
+- npm / yarn / pnpm
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Instalación y Ejecución
+
+1. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
+
+2. **Iniciar servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Abrir en el navegador:**
+   Navega a `http://localhost:3000` para ver la aplicación en funcionamiento.
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Framework:** [Next.js 16](https://nextjs.org/) (App Router & Turbopack)
+- **Biblioteca UI:** [React 19](https://react.dev/)
+- **Estilos:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Iconos:** [Lucide React](https://lucide.dev/)
+- **Procesamiento de Archivos:** `xlsx`
+- **Lenguaje:** TypeScript
