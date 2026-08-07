@@ -94,6 +94,10 @@ export function normalizeERPData(rawInput: any): FacturaERP[] {
     if (!rawXmlUuid) {
       for (const val of Object.values(item)) {
         if (typeof val === 'string') {
+          // Ignora cadenas de fecha/hora (p.ej. "2026-01-09T00:00:00"), que de otro modo
+          // superan el chequeo alfanumérico y se confunden con un UUID abreviado.
+          if (/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}:\d{2})?$/.test(val.trim())) continue;
+
           const cleanVal = normalizeText(val);
           if (cleanVal.length >= 6 && cleanVal.length <= 36 && /^[A-Z0-9]+$/.test(cleanVal)) {
             rawXmlUuid = val;

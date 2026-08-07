@@ -29,7 +29,7 @@ import {
 
 export default function Home() {
   const { currentUser } = useAuth();
-  const [activeModule, setActiveModule] = useState<ModuleId>('hub');
+  const [activeModule, setActiveModule] = useState<ModuleId>('conciliacion');
   
   const { toleranciaDiferencia, filtroProveedorRFC, updateSettings } = useSettings();
   const {

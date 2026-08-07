@@ -17,20 +17,30 @@ function getColumnValue(row: Record<string, any>, possibleKeys: string[]): any {
 
 function findUUIDInRow(row: Record<string, any>): string {
   const direct = getColumnValue(row, [
-    'folio fiscal', 'uuid', 'folio_fiscal', 'foliofiscal', 'uuid cfdi', 'folio fiscal (uuid)', 'uuid sat'
+    'folio fiscal', 'uuid', 'folio_fiscal', 'foliofiscal', 'uuid cfdi', 'folio fiscal (uuid)', 'uuid sat', 'xml / uuid', 'xml/uuid', 'xml', 'clave sat', 'cfdi'
   ]);
   
   if (direct) {
-    const match = String(direct).match(UUID_REGEX);
+    const strVal = String(direct).trim();
+    const match = strVal.match(UUID_REGEX);
     if (match) return match[0];
-    const clean = String(direct).replace(/[^A-Za-z0-9]/g, '');
-    if (clean.length === 32) return String(direct).trim();
+
+    const clean = strVal.replace(/[^A-Za-z0-9]/g, '');
+    if (clean.length >= 6) return strVal;
   }
 
   for (const val of Object.values(row)) {
     if (typeof val === 'string') {
-      const match = val.match(UUID_REGEX);
+      const strVal = val.trim();
+      const match = strVal.match(UUID_REGEX);
       if (match) return match[0];
+
+      const clean = strVal.replace(/[^A-Za-z0-9]/g, '');
+      if (clean.length >= 6 && clean.length <= 36) {
+        if (/^[A-Za-z0-9]+$/.test(clean)) {
+          return strVal;
+        }
+      }
     }
   }
 
@@ -39,7 +49,6 @@ function findUUIDInRow(row: Record<string, any>): string {
 
 /**
  * Parsea y estandariza la Fecha de Emisión del SAT a formato YYYY-MM-DD
- * Soporta objetos Date, cadenas ISO YYYY-MM-DD, y cadenas en formato México DD/MM/YYYY
  */
 function parseFechaEmision(val: any): string {
   if (!val) return '';
@@ -94,30 +103,8 @@ export async function parseExcelSAT(file: File): Promise<ParseExcelResult> {
         const facturas: FacturaSAT[] = [];
         const detectedDates: string[] = [];
 
-        for (const row of rawRows) {
-          const uuid = findUUIDInRow(row).toUpperCase().trim();
-          if (!uuid) continue;
-
-          const rfcEmisor = String(
-            getColumnValue(row, ['rfc emisor', 'rfc_emisor', 'rfcemisor', 'rfc del emisor', 'emisor rfc', 'rfc']) || 'N/A'
-          ).trim();
-
-          const nombreEmisor = String(
-            getColumnValue(row, ['nombre emisor', 'nombre_emisor', 'nombreemisor', 'nombre del emisor', 'razon social emisor', 'nombre o razon social del emisor', 'nombre']) || 'PROVEEDOR SAT'
-          ).trim();
-
-          // Prioridad estricta al campo "Fecha Emision" / "Fecha Emisión"
-          const rawFechaVal = getColumnValue(row, [
-            'fecha de emision', 'fecha emision', 'fecha emisión', 'fecha_emision', 'fechaemision',
-            'fecha comprobante', 'fecha del comprobante', 'fecha'
-          ]);
-
-          const fecha = parseFechaEmision(rawFechaVal);
-
-          if (fecha) {
-            detectedDates.push(fecha);
-          }
-
+        for (let idx = 0; idx < rawRows.length; idx++) {
+          const row = rawRows[idx];
           const rawTotal = getColumnValue(row, ['total', 'monto total', 'importe total', 'monto', 'importe']);
           let total = 0;
           if (typeof rawTotal === 'number') {
@@ -125,6 +112,34 @@ export async function parseExcelSAT(file: File): Promise<ParseExcelResult> {
           } else if (rawTotal) {
             const parsedNumber = parseFloat(String(rawTotal).replace(/[^0-9.-]+/g, ''));
             total = isNaN(parsedNumber) ? 0 : parsedNumber;
+          }
+
+          const folio = String(getColumnValue(row, ['folio', 'folio interno', 'ref. factura', 'factura', 'docto']) || '').trim();
+          const serie = String(getColumnValue(row, ['serie']) || '').trim();
+          
+          let uuid = findUUIDInRow(row).toUpperCase().trim();
+          if (!uuid) {
+            if (folio) uuid = folio;
+            else if (total > 0) uuid = `SAT-ROW-${idx + 1}`;
+            else continue; // Si la fila está vacía o no tiene datos de factura, ignorar
+          }
+
+          const rfcEmisor = String(
+            getColumnValue(row, ['rfc emisor', 'rfc_emisor', 'rfcemisor', 'rfc del emisor', 'emisor rfc', 'rfc']) || 'N/A'
+          ).trim();
+
+          const nombreEmisor = String(
+            getColumnValue(row, ['nombre emisor', 'nombre_emisor', 'nombreemisor', 'nombre del emisor', 'razon social emisor', 'nombre o razon social del emisor', 'nombre', 'proveedor']) || 'PROVEEDOR SAT'
+          ).trim();
+
+          const rawFechaVal = getColumnValue(row, [
+            'fecha de emision', 'fecha emision', 'fecha emisión', 'fecha_emision', 'fechaemision',
+            'fecha comprobante', 'fecha del comprobante', 'fecha'
+          ]);
+
+          const fecha = parseFechaEmision(rawFechaVal);
+          if (fecha) {
+            detectedDates.push(fecha);
           }
 
           const rawEstatus = String(
@@ -144,9 +159,6 @@ export async function parseExcelSAT(file: File): Promise<ParseExcelResult> {
           if (metodoPago.includes('PUE')) metodoPago = 'PUE';
           else if (metodoPago.includes('PPD')) metodoPago = 'PPD';
 
-          const folio = String(getColumnValue(row, ['folio', 'folio interno']) || '').trim();
-          const serie = String(getColumnValue(row, ['serie']) || '').trim();
-
           facturas.push({
             uuid,
             rfcEmisor,
@@ -160,23 +172,10 @@ export async function parseExcelSAT(file: File): Promise<ParseExcelResult> {
           });
         }
 
-        // Calcular minDate y maxDate estrictamente basadas en las fechas reales de "Fecha Emisión" del Excel
+        // Ordenar fechas para detectar el rango (min y max)
         detectedDates.sort();
-        let detectedMinDate: string | undefined;
-        let detectedMaxDate: string | undefined;
-
-        if (detectedDates.length > 0) {
-          const firstDateStr = detectedDates[0];
-          const lastDateStr = detectedDates[detectedDates.length - 1];
-
-          // Extraer año y mes exacto de la Fecha Emisión de la primera factura
-          const [minY, minM] = firstDateStr.split('-');
-          detectedMinDate = `${minY}-${minM}-01`;
-
-          const [maxY, maxM] = lastDateStr.split('-');
-          const lastDay = new Date(parseInt(maxY, 10), parseInt(maxM, 10), 0).getDate();
-          detectedMaxDate = `${maxY}-${maxM}-${String(lastDay).padStart(2, '0')}`;
-        }
+        const detectedMinDate = detectedDates.length > 0 ? detectedDates[0] : undefined;
+        const detectedMaxDate = detectedDates.length > 0 ? detectedDates[detectedDates.length - 1] : undefined;
 
         resolve({
           facturas,
@@ -184,12 +183,11 @@ export async function parseExcelSAT(file: File): Promise<ParseExcelResult> {
           detectedMaxDate,
         });
       } catch (err) {
-        console.error('Error al procesar archivo SAT:', err);
-        reject(new Error('No se pudo procesar el archivo del SAT. Verifique que sea un Excel (.xlsx, .xls) o CSV válido.'));
+        reject(err);
       }
     };
 
-    reader.onerror = (error) => reject(error);
+    reader.onerror = (err) => reject(err);
     reader.readAsArrayBuffer(file);
   });
 }
