@@ -172,11 +172,20 @@ export default function Home() {
                 </span>
               </div>
 
-              {/* Grid Principal: 1. Cargar Archivo, 2. Rango Fechas, 3. UNICO BOTÓN CONCILIAR */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200">
+              {/* Grid Principal Guiado por Pasos (Paso 1, Paso 2, Paso 3) */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch bg-slate-50/80 p-4 rounded-2xl border border-slate-200">
                 
-                {/* 1. Cargar Archivo SAT (5 cols) */}
-                <div className="md:col-span-5">
+                {/* PASO 1: Cargar Archivo SAT (5 cols) */}
+                <div className="md:col-span-5 bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between gap-2 shadow-2xs">
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <span className="px-2 py-0.5 rounded-md bg-blue-900 text-white text-[10px] font-medium">
+                      Paso 1
+                    </span>
+                    <span className="text-xs font-medium text-slate-800">
+                      Cargar Excel / Auxiliar SAT
+                    </span>
+                  </div>
+
                   <FileUploadZone
                     onFileSelect={(file) => {
                       uploadSatFile(file);
@@ -189,13 +198,17 @@ export default function Home() {
                   />
                 </div>
 
-                {/* 2. Rango de Fechas ERP (4 cols) */}
-                <div className="md:col-span-4 bg-white p-2.5 rounded-xl border border-slate-200 flex flex-col gap-1 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-slate-700 uppercase tracking-wider flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-blue-900" />
-                      Rango Fechas ERP:
-                    </span>
+                {/* PASO 2: Rango de Fechas ERP (4 cols) */}
+                <div className="md:col-span-4 bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between gap-2 shadow-2xs">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md bg-blue-900 text-white text-[10px] font-medium">
+                        Paso 2
+                      </span>
+                      <span className="text-xs font-medium text-slate-800">
+                        Fechas ERP
+                      </span>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
@@ -220,8 +233,17 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 3. ÚNICO BOTÓN PRINCIPAL DE CONCILIACIÓN (3 cols) */}
-                <div className="md:col-span-3 flex flex-col gap-1">
+                {/* PASO 3: ÚNICO BOTÓN PRINCIPAL DE CONCILIACIÓN (3 cols) */}
+                <div className="md:col-span-3 bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between gap-2 shadow-2xs">
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <span className="px-2 py-0.5 rounded-md bg-blue-900 text-white text-[10px] font-medium">
+                      Paso 3
+                    </span>
+                    <span className="text-xs font-medium text-slate-800">
+                      Ejecutar Conciliación
+                    </span>
+                  </div>
+
                   <button
                     onClick={() => {
                       if (!isFileReady) {
@@ -231,7 +253,7 @@ export default function Home() {
                       handleStartReconciliation();
                     }}
                     disabled={!isFileReady || isLoading}
-                    className={`w-full py-2.5 px-4 font-medium text-xs rounded-xl shadow-2xs transition-all flex items-center justify-center gap-2 border ${
+                    className={`w-full py-2 px-3 font-medium text-xs rounded-xl shadow-2xs transition-all flex items-center justify-center gap-2 border ${
                       isFileReady
                         ? 'bg-blue-900 hover:bg-blue-950 text-white cursor-pointer active:scale-[0.98] border-blue-900'
                         : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
@@ -246,13 +268,13 @@ export default function Home() {
                     ) : (
                       <>
                         <Zap className="w-3.5 h-3.5" />
-                        <span>Ejecutar Conciliación</span>
+                        <span>Iniciar Auditoría</span>
                       </>
                     )}
                   </button>
 
                   <span className="text-[10px] text-center text-slate-400 font-normal">
-                    {isFileReady ? '🔵 Archivo cargado • Por Conciliar' : '⚠️ Archivo Excel requerido'}
+                    {isFileReady ? '🔵 Por Conciliar' : '⚠️ Cargar Excel'}
                   </span>
                 </div>
               </div>
