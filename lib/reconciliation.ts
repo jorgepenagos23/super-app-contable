@@ -233,7 +233,7 @@ export function reconcile(
             erpUuidClean.includes(satUuidClean)
           ) {
             matchIdx = i;
-            matchType = `Amarre UUID 3-3 (${satFirst3}...${satLast3})`;
+            matchType = `Amarre UUID 3-3 (${satFirst3}-${satLast3})`;
             break;
           }
         }
