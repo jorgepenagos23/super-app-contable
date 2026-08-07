@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { ItemConciliado } from '@/types/reconciliation';
 import { InvoiceAuditModal } from './InvoiceAuditModal';
-import { useSupplierProfiles, SupplierProfile } from '@/hooks/useSupplierProfiles';
-import { SupplierConfigModal } from './SupplierConfigModal';
-import { Building2, ChevronDown, ChevronUp, FileCheck, Eye, Settings, Building } from 'lucide-react';
+import { useSupplierProfiles } from '@/hooks/useSupplierProfiles';
+import { getSupplierBrandLogo } from '@/lib/supplier-logos';
+import { Building2, ChevronDown, ChevronUp, FileCheck, Eye } from 'lucide-react';
 
 interface SupplierGroup {
   nombreEmisor: string;
@@ -27,7 +27,6 @@ interface SupplierBreakdownCardProps {
 export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
   conciliadas,
   montoTotalConciliadas,
-  onOpenSupplierConfig
 }) => {
   const [expandedSupplier, setExpandedSupplier] = useState<string | null>(null);
   const [selectedAuditInvoice, setSelectedAuditInvoice] = useState<ItemConciliado | null>(null);
@@ -95,10 +94,10 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
           </span>
           <h3 className="text-xl font-black text-slate-900 tracking-tight mt-1 flex items-center gap-2">
             <Building2 className="w-5 h-5 text-emerald-600" />
-            Desglose de Compras Conciliadas por Proveedor ($ Pesos)
+            Desglose por Proveedor y Marca ($ Pesos)
           </h3>
           <p className="text-xs text-slate-600 mt-0.5">
-            Personaliza el logotipo, la marca y los parámetros de cada proveedor haciendo clic en el icono de configuración ⚙️.
+            Haga clic en cualquier renglón de proveedor para consultar el listado completo de facturas conciliadas.
           </p>
         </div>
 
@@ -110,31 +109,42 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
         </div>
       </div>
 
-      {/* Lista de Proveedores */}
+      {/* Lista de Proveedores con su Logotipo */}
       <div className="space-y-3">
         {proveedoresList.map((prov, index) => {
           const isExpanded = expandedSupplier === prov.rfcEmisor;
           const profile = getProfile(prov.rfcEmisor || prov.nombreEmisor);
+          const logoUrl = getSupplierBrandLogo(prov.nombreEmisor, prov.rfcEmisor, profile?.logoUrl);
 
           return (
             <div
               key={prov.rfcEmisor || index}
               className="border border-slate-200 rounded-2xl overflow-hidden transition-all bg-white hover:border-emerald-300 shadow-xs"
             >
-              {/* Fila del Proveedor */}
-              <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                
+              {/* Fila del Proveedor con Logotipo Prominente */}
+              <div
+                onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
+                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/70 transition-all"
+              >
                 {/* Logo & Identificación */}
-                <div
-                  onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
-                  className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"
-                >
-                  {/* Logo Personalizado o Badge por Defecto */}
-                  <div className="relative w-10 h-10 rounded-xl bg-slate-900 text-white font-black text-xs flex items-center justify-center shrink-0 border border-slate-700 overflow-hidden shadow-xs">
-                    {profile?.logoUrl ? (
-                      <img src={profile.logoUrl} alt={prov.nombreEmisor} className="w-full h-full object-contain p-0.5 bg-white" />
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  
+                  {/* Badge de Logotipo Prominente */}
+                  <div className="relative w-12 h-12 rounded-2xl bg-white text-slate-900 font-black text-sm flex items-center justify-center shrink-0 border border-slate-200 shadow-sm overflow-hidden p-1">
+                    {logoUrl ? (
+                      <img
+                        src={logoUrl}
+                        alt={prov.nombreEmisor}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          // Fallback si la imagen falla
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
                     ) : (
-                      <span>{prov.nombreEmisor.slice(0, 2).toUpperCase()}</span>
+                      <span className="text-slate-800 font-black">
+                        {prov.nombreEmisor.slice(0, 2).toUpperCase()}
+                      </span>
                     )}
                   </div>
 
@@ -146,15 +156,10 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                       <span className="px-2 py-0.5 rounded text-[10px] font-black bg-slate-100 text-slate-600 border border-slate-200 font-mono">
                         {prov.rfcEmisor || 'Sin RFC'}
                       </span>
-                      {profile?.regimenFiscal && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-blue-800 border border-blue-200">
-                          SAT: {profile.regimenFiscal}
-                        </span>
-                      )}
                     </div>
 
                     <div className="flex items-center gap-3 mt-1.5">
-                      <div className="w-32 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                      <div className="w-36 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
                         <div
                           className="bg-emerald-600 h-2 rounded-full transition-all"
                           style={{ width: `${Math.min(100, prov.porcentajeDelTotal)}%` }}
@@ -167,7 +172,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                   </div>
                 </div>
 
-                {/* Acciones y Métricas del Proveedor */}
+                {/* Métricas y Desplegable */}
                 <div className="flex items-center gap-4 justify-between sm:justify-end shrink-0">
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-slate-400 uppercase block">Facturas</span>
@@ -185,8 +190,12 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                   </div>
 
                   <button
-                    onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
-                    className="p-2 rounded-xl bg-slate-100 text-slate-500 cursor-pointer hover:bg-slate-200"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedSupplier(isExpanded ? null : prov.rfcEmisor);
+                    }}
+                    className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
                   >
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
