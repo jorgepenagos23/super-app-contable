@@ -310,6 +310,7 @@ export function reconcile(
 
     if (matchIdx !== -1) {
       erpVisited.add(matchIdx);
+      const erpMatch = erpList[matchIdx];
       const rawDif = Math.abs(sat.total - erpMatch.total);
       const dif = rawDif <= 0.05 ? 0 : Number(rawDif.toFixed(2));
 
