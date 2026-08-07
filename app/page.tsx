@@ -58,6 +58,7 @@ export default function Home() {
     setFechaFinal,
     saveApiToken,
     loadDemoERPData,
+    uploadSatFile,
     startReconciliation,
     resetAll,
   } = useReconciliation();
@@ -184,12 +185,10 @@ export default function Home() {
                 <div className="md:col-span-5">
                   <FileUploadZone
                     onFileSelect={(file) => {
-                      setSatFile(file);
-                      startReconciliation(file, filtroProveedorRFC);
+                      uploadSatFile(file);
                     }}
                     onFileSelected={(file) => {
-                      setSatFile(file);
-                      startReconciliation(file, filtroProveedorRFC);
+                      uploadSatFile(file);
                     }}
                     fileName={fileName}
                     fileError={fileError}
@@ -269,10 +268,35 @@ export default function Home() {
                   </button>
 
                   <span className="text-[10px] text-center text-slate-400 font-medium">
-                    {isFileReady ? '🟢 Archivo Excel listo para conciliar' : '⚠️ Archivo Excel requerido'}
+                    {isFileReady ? '🟢 Archivo cargado • Por Conciliar' : '⚠️ Archivo Excel requerido'}
                   </span>
                 </div>
               </div>
+
+              {/* Banner de Estado "POR CONCILIAR" cuando el archivo se ha cargado pero no se ha ejecutado el cruce */}
+              {isFileReady && !resultado && !isLoading && (
+                <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-amber-900 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-amber-500 animate-ping" />
+                    <div>
+                      <span className="text-xs font-black uppercase tracking-wider text-amber-800 block">
+                        ESTADO: POR CONCILIAR
+                      </span>
+                      <p className="text-xs font-semibold text-amber-900 mt-0.5">
+                        Archivo <strong>"{fileName}"</strong> ({satData.length} facturas detectadas). Haga clic en el botón verde <strong>"⚡ Ejecutar Conciliación"</strong> para realizar la auditoría.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleStartReconciliation()}
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-extrabold text-xs transition-all shadow-xs shrink-0 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Zap className="w-3.5 h-3.5 fill-white" />
+                    <span>Conciliar Ahora</span>
+                  </button>
+                </div>
+              )}
 
               {/* Mensaje Informativo / Estado */}
               {is401Error && isSuperAdmin && (

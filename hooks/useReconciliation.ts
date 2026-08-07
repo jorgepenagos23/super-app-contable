@@ -85,6 +85,29 @@ export function useReconciliation() {
     fetchInitialERP();
   }, []);
 
+  // Carga y parsea el archivo Excel del SAT dejando el estado como "Por conciliar"
+  const uploadSatFile = async (file: File) => {
+    try {
+      setIsLoading(true);
+      setFileError(null);
+      setResultado(null); // Resetea cualquier resultado previo para que diga "Por conciliar"
+
+      const parseResult = await parseExcelSAT(file);
+      setSatFile(file);
+      setSatData(parseResult.facturas);
+      setFileName(file.name);
+
+      if (parseResult.detectedMinDate && parseResult.detectedMaxDate) {
+        setFechaInicial(parseResult.detectedMinDate);
+        setFechaFinal(parseResult.detectedMaxDate);
+      }
+    } catch (err: any) {
+      setFileError(err.message || 'Error al procesar el archivo Excel del SAT.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Extraer lista única de proveedores disponibles TANTO en el ERP (FROG API) COMO en el SAT (Excel)
   const availableSuppliers = useMemo(() => {
     const map = new Map<string, SupplierOption>();
@@ -288,6 +311,7 @@ export function useReconciliation() {
     setFechaFinal,
     saveApiToken,
     loadDemoERPData,
+    uploadSatFile,
     startReconciliation,
     resetAll,
   };
