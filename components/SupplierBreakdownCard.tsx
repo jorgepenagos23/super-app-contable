@@ -133,7 +133,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 
           <h3 className="text-xl font-normal text-slate-900 tracking-tight mt-1 flex items-center gap-2">
             <Building2 className="w-5 h-5 text-blue-900" />
-            Conciliaciones Exitosas por Proveedor
+            Conciliaciones por Proveedor
           </h3>
           <p className="text-xs text-slate-500 mt-0.5 font-normal">
             Muestra únicamente las facturas del SAT amarradas y conciliadas contra recepciones del ERP de Grupo MV.
