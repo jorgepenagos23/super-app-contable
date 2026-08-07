@@ -28,7 +28,7 @@ import {
   Sliders,
   ArrowLeft,
   Building2,
-  Settings
+  Zap
 } from 'lucide-react';
 
 export default function Home() {
@@ -101,7 +101,7 @@ export default function Home() {
         onClose={() => setIsUserModalOpen(false)}
       />
 
-      {/* Modal de Parametrización y Desplegable de Proveedores */}
+      {/* Modal de Parametrización */}
       <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
@@ -116,7 +116,7 @@ export default function Home() {
         }}
       />
 
-      {/* Modal de Configuración y Logotipo por Proveedor */}
+      {/* Modal de Configuración de Proveedor */}
       <SupplierConfigModal
         isOpen={isSupplierConfigModalOpen}
         onClose={() => setIsSupplierConfigModalOpen(false)}
@@ -141,7 +141,7 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-5">
         
-        {/* HUB INICIAL CON SOLO EL MODULO DE CONCILIACIÓN PARAL vs SAT */}
+        {/* HUB INICIAL */}
         {activeModule === 'hub' && (
           <AccountantHub
             onSelectModule={(mod) => setActiveModule(mod)}
@@ -155,39 +155,36 @@ export default function Home() {
         {activeModule === 'conciliacion' && (
           <div className="flex flex-col gap-5">
             
-            {/* Header / Back to Hub */}
+            {/* Header Navegación */}
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setActiveModule('hub')}
                 className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Volver al Menú Principal</span>
+                <span>Menú Principal</span>
               </button>
-
-              <span className="text-xs text-slate-500 font-medium">
-                Módulo en Producción • API Grupo MV Conectado
-              </span>
             </div>
 
-            {/* Control Card Unificado */}
-            <div className="bg-white/80 backdrop-blur-md border border-slate-200 rounded-3xl p-5 shadow-xs flex flex-col gap-4">
+            {/* Control Panel Unificado e Intuitivo */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex flex-col gap-4">
               
-              {/* Header Compacto */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Encabezado Principal */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   <h2 className="text-lg font-black text-slate-900 tracking-tight">
                     Conciliación Compras PARAL vs. SAT
                   </h2>
                 </div>
 
+                {/* Accesos Rápidos de Configuración */}
                 <div className="flex items-center gap-2 flex-wrap">
                   
-                  {/* Desplegable Rápido de Proveedores Detectados */}
+                  {/* Selector de Proveedor */}
                   {availableSuppliers.length > 0 && (
-                    <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-300">
-                      <Building className="w-3.5 h-3.5 text-emerald-600 ml-1.5" />
+                    <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-300">
+                      <Building className="w-3.5 h-3.5 text-emerald-600 ml-1" />
                       <select
                         value={filtroProveedorRFC}
                         onChange={(e) => {
@@ -209,17 +206,17 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* Botón Configurar Perfil de Proveedores */}
+                  {/* Configurar Proveedor / Logo */}
                   <button
                     onClick={() => handleOpenSupplierConfig(filtroProveedorRFC || '')}
                     className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-300"
-                    title="Configurar Logotipos, Marca y Datos Fiscales por Proveedor"
+                    title="Configurar Logotipo y Datos de Proveedor"
                   >
                     <Building2 className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Perfil Proveedor</span>
                   </button>
 
-                  {/* Botón Parámetros / Ajustes */}
+                  {/* Parámetros */}
                   <button
                     onClick={() => setIsSettingsModalOpen(true)}
                     className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold ${
@@ -227,7 +224,7 @@ export default function Home() {
                         ? 'bg-emerald-100 border-emerald-400 text-emerald-900'
                         : 'bg-slate-100 border-slate-300 hover:bg-slate-200 text-slate-700'
                     }`}
-                    title="Configurar Parámetros de Conciliación"
+                    title="Configurar Tolerancia"
                   >
                     <Sliders className="w-3.5 h-3.5 text-emerald-600" />
                     <span>
@@ -235,21 +232,21 @@ export default function Home() {
                     </span>
                   </button>
 
+                  {/* Limpiar */}
                   <button
                     onClick={resetAll}
                     className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer flex items-center gap-1 text-xs font-bold"
-                    title="Reiniciar"
+                    title="Reiniciar Formulario"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Limpiar</span>
                   </button>
 
-                  {/* Botón Token EXCLUSIVO para Super Admin */}
                   {isSuperAdmin && (
                     <button
                       onClick={() => setIsApiModalOpen(true)}
                       className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer flex items-center gap-1 text-xs font-bold"
-                      title="Configurar Token (Solo Super Admin)"
+                      title="Configurar Token"
                     >
                       <SlidersHorizontal className="w-3.5 h-3.5 text-amber-600" />
                       <span className="text-amber-800">Token</span>
@@ -258,10 +255,10 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Grid Compacto: Cargar Excel + Fechas + Botón Conciliar */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-50/70 p-3 rounded-2xl border border-slate-200">
+              {/* Grid Principal: 1. Cargar Archivo, 2. Rango Fechas, 3. UNICO BOTÓN CONCILIAR */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200">
                 
-                {/* Cargar Archivo SAT (5 cols) */}
+                {/* 1. Cargar Archivo SAT (5 cols) */}
                 <div className="md:col-span-5">
                   <FileUploadZone
                     onFileSelect={(file) => {
@@ -277,7 +274,7 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Filtro Rango de Fechas ERP (4 cols) */}
+                {/* 2. Rango de Fechas ERP (4 cols) */}
                 <div className="md:col-span-4 bg-white p-2.5 rounded-xl border border-slate-200 flex flex-col gap-1 shadow-xs">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">
@@ -286,7 +283,7 @@ export default function Home() {
                     </span>
                     {lastFetchInfo && (
                       <span className="text-[10px] text-slate-400 font-medium">
-                        API: {lastFetchInfo.fechaInicialStr} a {lastFetchInfo.fechaFinalStr}
+                        API Activa
                       </span>
                     )}
                   </div>
@@ -313,12 +310,12 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Botón Ejecutar Conciliación (3 cols) */}
+                {/* 3. ÚNICO BOTÓN PRINCIPAL DE CONCILIACIÓN (3 cols) */}
                 <div className="md:col-span-3 flex flex-col gap-1">
                   <button
                     onClick={() => handleStartReconciliation()}
                     disabled={isLoading}
-                    className="w-full h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
+                    className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
                   >
                     {isLoading ? (
                       <>
@@ -327,19 +324,19 @@ export default function Home() {
                       </>
                     ) : (
                       <>
-                        <Play className="w-4 h-4 fill-white" />
+                        <Zap className="w-4 h-4 fill-white" />
                         <span>Ejecutar Conciliación</span>
                       </>
                     )}
                   </button>
 
                   <span className="text-[10px] text-center text-slate-400 font-medium">
-                    {erpData.length > 0 ? `🟢 ${erpData.length} registros cargados` : 'Esperando datos...'}
+                    {erpData.length > 0 ? `🟢 ${erpData.length} compras ERP listas` : 'Esperando datos...'}
                   </span>
                 </div>
               </div>
 
-              {/* Banner de Estado / Errores */}
+              {/* Mensaje Informativo / Estado */}
               {is401Error && isSuperAdmin && (
                 <div className="bg-amber-50 border border-amber-300 rounded-xl p-3 flex items-center justify-between text-xs text-amber-900">
                   <div className="flex items-center gap-2">
@@ -355,35 +352,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-
-            {/* Si aún no se ejecuta resultado, mostrar banner explicativo */}
-            {!resultado && (
-              <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-800">
-                <div className="flex flex-col gap-2 max-w-xl">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-black uppercase">
-                      Motor de Conciliación Listo
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-black text-white tracking-tight">
-                    Auditoría Automática de Compras y Facturación
-                  </h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Sube tu auxiliar de compras en Excel o haz clic en <strong>"Ejecutar Conciliación"</strong> para cruzar automáticamente las compras registradas en el ERP de Grupo MV contra las facturas reportadas.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => handleStartReconciliation()}
-                    className="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 cursor-pointer"
-                  >
-                    <Play className="w-4 h-4 fill-white" />
-                    <span>Iniciar Auditoría ERP</span>
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Si ya hay resultados */}
             {resultado && (
