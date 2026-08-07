@@ -69,6 +69,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
   const columnsFaltantes = [
     { key: 'rfcEmisor', header: 'RFC Emisor', sortable: true },
     { key: 'nombreEmisor', header: 'Nombre / Razón Social', sortable: true },
+    { key: 'fecha', header: 'Fecha Emisión', sortable: true },
     { key: 'uuid', header: 'UUID (Folio Fiscal)', sortable: true },
     {
       key: 'estatusSAT',
