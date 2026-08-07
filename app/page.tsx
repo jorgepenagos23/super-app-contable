@@ -164,7 +164,7 @@ export default function Home() {
                 <div className="flex items-center gap-3">
                   <img src="/logos/sat.png" alt="SAT México" className="h-8 object-contain drop-shadow-xs rounded-lg" />
                   <span className="text-slate-400 font-medium text-xs">VS</span>
-                  <img src="/logos/frog.svg" alt="FROG ERP Grupo MV" className="h-8 object-contain drop-shadow-xs" />
+                  <img src="/logos/frog.png" alt="FROG ERP Grupo MV" className="h-8 object-contain drop-shadow-xs rounded-lg" />
                 </div>
 
                 <span className="text-xs text-slate-500 font-normal">
