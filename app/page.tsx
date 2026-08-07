@@ -162,7 +162,7 @@ export default function Home() {
               {/* Encabezado con Logos de SAT y FROG ERP */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-1 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-3">
-                  <img src="/logos/sat.svg" alt="SAT México" className="h-8 object-contain drop-shadow-xs" />
+                  <img src="/logos/sat.png" alt="SAT México" className="h-8 object-contain drop-shadow-xs rounded-lg" />
                   <span className="text-slate-400 font-medium text-xs">VS</span>
                   <img src="/logos/frog.svg" alt="FROG ERP Grupo MV" className="h-8 object-contain drop-shadow-xs" />
                 </div>

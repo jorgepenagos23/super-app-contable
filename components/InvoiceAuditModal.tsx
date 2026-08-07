@@ -172,7 +172,7 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <div className="flex items-center gap-2">
-                  <img src="/logos/sat.svg" alt="SAT" className="h-6 object-contain" />
+                  <img src="/logos/sat.png" alt="SAT" className="h-6 object-contain rounded" />
                   <span className="text-xs font-medium text-slate-800 uppercase tracking-wider">
                     Reporte Fiscal SAT (XML)
                   </span>
