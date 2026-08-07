@@ -127,17 +127,6 @@ export default function Home() {
         onDeleteProfile={removeProfile}
       />
 
-      {isSuperAdmin && (
-        <ApiCredentialsModal
-          isOpen={isApiModalOpen}
-          onClose={() => setIsApiModalOpen(false)}
-          currentToken={apiToken}
-          onSaveToken={saveApiToken}
-          onLoadDemo={loadDemoERPData}
-          isLoading={isLoading}
-        />
-      )}
-
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-5">
         
@@ -235,23 +224,12 @@ export default function Home() {
                   {/* Limpiar */}
                   <button
                     onClick={resetAll}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer flex items-center gap-1 text-xs font-bold"
+                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer flex items-center gap-1 text-xs font-bold border border-slate-200"
                     title="Reiniciar Formulario"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Limpiar</span>
                   </button>
-
-                  {isSuperAdmin && (
-                    <button
-                      onClick={() => setIsApiModalOpen(true)}
-                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer flex items-center gap-1 text-xs font-bold"
-                      title="Configurar Token"
-                    >
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-amber-600" />
-                      <span className="text-amber-800">Token</span>
-                    </button>
-                  )}
                 </div>
               </div>
 
