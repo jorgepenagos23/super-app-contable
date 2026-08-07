@@ -13,10 +13,6 @@ import { UserManagementModal } from '@/components/UserManagementModal';
 import { ApiCredentialsModal } from '@/components/ApiCredentialsModal';
 import { SettingsModal } from '@/components/SettingsModal';
 import { AccountantHub, ModuleId } from '@/components/AccountantHub';
-import { AuditoriaSatModule } from '@/components/modules/AuditoriaSatModule';
-import { CalculadoraImpuestosModule } from '@/components/modules/CalculadoraImpuestosModule';
-import { ControlProveedoresModule } from '@/components/modules/ControlProveedoresModule';
-import { UtilidadesContadorModule } from '@/components/modules/UtilidadesContadorModule';
 
 import {
   Building,
@@ -27,9 +23,7 @@ import {
   RotateCcw,
   Calendar,
   Loader2,
-  Globe,
   Sliders,
-  Filter,
   ArrowLeft
 } from 'lucide-react';
 
@@ -69,21 +63,10 @@ export default function Home() {
   const isSuperAdmin = currentUser?.role === 'admin' || currentUser?.email === 'jorge.ramirez@grupomv.mx';
 
   const isFileReady = Boolean(satFile || fileName);
-  const faltantesCount = resultado?.metricas.faltantesERPCount || 0;
-  const canceladasCount = resultado?.metricas.canceladasSATCount || 0;
-  const tieneAlertas = faltantesCount > 0 || canceladasCount > 0;
 
   const handleStartReconciliation = (overrideProveedor?: string) => {
     const provToUse = overrideProveedor !== undefined ? overrideProveedor : filtroProveedorRFC;
     startReconciliation(undefined, provToUse);
-  };
-
-  const handleSelectProveedorForReconciliation = (rfcOrNombre: string) => {
-    updateSettings({ filtroProveedorRFC: rfcOrNombre });
-    setActiveModule('conciliacion');
-    if (isFileReady) {
-      startReconciliation(undefined, rfcOrNombre);
-    }
   };
 
   return (
@@ -132,9 +115,9 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-5">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:lg:px-8 py-6 flex flex-col gap-5">
         
-        {/* MODULO 0: HUB INICIAL / CENTRO DE CONTROL DEL CONTADOR */}
+        {/* HUB INICIAL CON SOLO EL MODULO DE CONCILIACIÓN PARAL vs SAT */}
         {activeModule === 'hub' && (
           <AccountantHub
             onSelectModule={(mod) => setActiveModule(mod)}
@@ -144,7 +127,7 @@ export default function Home() {
           />
         )}
 
-        {/* MODULO 1: CONCILIACION DE COMPRAS PARAL vs SAT */}
+        {/* WORKSPACE DE CONCILIACIÓN DE COMPRAS PARAL vs SAT */}
         {activeModule === 'conciliacion' && (
           <div className="flex flex-col gap-5">
             
@@ -386,30 +369,6 @@ export default function Home() {
             )}
 
           </div>
-        )}
-
-        {/* MODULO 2: AUDITORIA CFDI & SAT 69-B */}
-        {activeModule === 'auditoria_sat' && (
-          <AuditoriaSatModule onBackToHub={() => setActiveModule('hub')} />
-        )}
-
-        {/* MODULO 3: CALCULADORA DE IMPUESTOS */}
-        {activeModule === 'impuestos' && (
-          <CalculadoraImpuestosModule onBackToHub={() => setActiveModule('hub')} />
-        )}
-
-        {/* MODULO 4: CONTROL DE PROVEEDORES & CXP */}
-        {activeModule === 'proveedores' && (
-          <ControlProveedoresModule
-            onBackToHub={() => setActiveModule('hub')}
-            availableSuppliers={availableSuppliers}
-            onSelectProveedorForReconciliation={handleSelectProveedorForReconciliation}
-          />
-        )}
-
-        {/* MODULO 5: UTILIDADES DEL CONTADOR */}
-        {activeModule === 'utilidades' && (
-          <UtilidadesContadorModule onBackToHub={() => setActiveModule('hub')} />
         )}
 
       </main>
