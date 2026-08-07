@@ -158,8 +158,8 @@ export default function Home() {
             {/* Control Panel Unificado e Intuitivo */}
             <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex flex-col gap-4">
               
-              {/* Encabezado Principal */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              {/* Encabezado Principal Limpio */}
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   <h2 className="text-lg font-black text-slate-900 tracking-tight">
@@ -167,70 +167,14 @@ export default function Home() {
                   </h2>
                 </div>
 
-                {/* Accesos Rápidos de Configuración */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  
-                  {/* Selector de Proveedor */}
-                  {availableSuppliers.length > 0 && (
-                    <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-300">
-                      <Building className="w-3.5 h-3.5 text-emerald-600 ml-1" />
-                      <select
-                        value={filtroProveedorRFC}
-                        onChange={(e) => {
-                          const selected = e.target.value;
-                          updateSettings({ filtroProveedorRFC: selected });
-                          if (isFileReady) {
-                            startReconciliation(undefined, selected);
-                          }
-                        }}
-                        className="bg-transparent font-extrabold text-xs text-slate-800 outline-none cursor-pointer max-w-[180px] truncate"
-                      >
-                        <option value="">🏢 Todos los Proveedores ({availableSuppliers.length})</option>
-                        {availableSuppliers.map((prov, pIdx) => (
-                          <option key={pIdx} value={prov.rfc || prov.nombre}>
-                            {prov.nombre} ({prov.count})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  {/* Configurar Proveedor / Logo */}
-                  <button
-                    onClick={() => handleOpenSupplierConfig(filtroProveedorRFC || '')}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-300"
-                    title="Configurar Logotipo y Datos de Proveedor"
-                  >
-                    <Building2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Perfil Proveedor</span>
-                  </button>
-
-                  {/* Parámetros */}
-                  <button
-                    onClick={() => setIsSettingsModalOpen(true)}
-                    className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold ${
-                      filtroProveedorRFC
-                        ? 'bg-emerald-100 border-emerald-400 text-emerald-900'
-                        : 'bg-slate-100 border-slate-300 hover:bg-slate-200 text-slate-700'
-                    }`}
-                    title="Configurar Tolerancia"
-                  >
-                    <Sliders className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>
-                      Parámetros {filtroProveedorRFC ? `(🎯 ${filtroProveedorRFC})` : `($${toleranciaDiferencia.toFixed(2)})`}
-                    </span>
-                  </button>
-
-                  {/* Limpiar */}
-                  <button
-                    onClick={resetAll}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer flex items-center gap-1 text-xs font-bold border border-slate-200"
-                    title="Reiniciar Formulario"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Limpiar</span>
-                  </button>
-                </div>
+                <button
+                  onClick={resetAll}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-200"
+                  title="Reiniciar Formulario"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Limpiar</span>
+                </button>
               </div>
 
               {/* Grid Principal: 1. Cargar Archivo, 2. Rango Fechas, 3. UNICO BOTÓN CONCILIAR */}

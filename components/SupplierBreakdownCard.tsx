@@ -184,21 +184,6 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                     </span>
                   </div>
 
-                  {/* Botón Configurar Proveedor */}
-                  {onOpenSupplierConfig && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenSupplierConfig(prov.rfcEmisor || prov.nombreEmisor);
-                      }}
-                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all cursor-pointer border border-slate-300"
-                      title="Configurar Logotipo, Datos Fiscales y Marca del Proveedor"
-                    >
-                      <Settings className="w-4 h-4 text-slate-700" />
-                    </button>
-                  )}
-
                   <button
                     onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
                     className="p-2 rounded-xl bg-slate-100 text-slate-500 cursor-pointer hover:bg-slate-200"
