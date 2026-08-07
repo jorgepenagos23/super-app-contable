@@ -211,7 +211,7 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                   <Building className="w-4 h-4 text-emerald-600" />
-                  API FROG ERP (Grupo MV)
+                  Sistema ERP FROG (Grupo MV)
                 </span>
                 <span className="text-[10px] font-bold text-slate-500">UDN: {udn}</span>
               </div>
@@ -332,7 +332,7 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
             >
               <div className="flex items-center gap-2">
                 <Code className="w-4 h-4 text-emerald-400" />
-                <span>Inspeccionar Todos los Campos Devueltos por la API de FROG</span>
+                <span>Ver Ficha Técnica de Recepción ERP</span>
               </div>
               {showRawInspector ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
@@ -340,7 +340,7 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
             {showRawInspector && (
               <div className="p-4 bg-slate-900 text-[11px] font-mono border-t border-slate-800 overflow-x-auto space-y-2">
                 <span className="text-[10px] text-slate-400 font-sans block mb-2">
-                  Objeto JSON raw recibido del endpoint `Lista_Compras_773` de Grupo MV:
+                  Campos y valores originales registrados en el módulo de compras:
                 </span>
                 <pre className="text-emerald-400 bg-slate-950 p-3 rounded-xl border border-slate-800 overflow-x-auto max-h-60">
                   {JSON.stringify(rawErp, null, 2)}

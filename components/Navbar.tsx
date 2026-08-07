@@ -103,7 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onRefreshERP}
               disabled={isLoadingERP}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 active:scale-95 cursor-pointer"
-              title="Recargar datos del ERP vía API"
+              title="Actualizar información de compras del ERP"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoadingERP ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Sincronizar ERP</span>

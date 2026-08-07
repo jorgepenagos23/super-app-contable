@@ -183,11 +183,6 @@ export default function Home() {
                       <Calendar className="w-3.5 h-3.5 text-emerald-600" />
                       Rango Fechas ERP:
                     </span>
-                    {lastFetchInfo && (
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        API Activa
-                      </span>
-                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
