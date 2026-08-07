@@ -172,6 +172,18 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
     },
   ];
 
+  const [faltantesSubFilter, setFaltantesSubFilter] = useState<'habituales' | 'otros' | 'todos'>('habituales');
+
+  const faltantesHabitualesList = faltantesERP.filter((f) => f.esProveedorHabitual !== false);
+  const faltantesOtrosList = faltantesERP.filter((f) => f.esProveedorHabitual === false);
+
+  const displayFaltantes =
+    faltantesSubFilter === 'habituales'
+      ? faltantesHabitualesList
+      : faltantesSubFilter === 'otros'
+      ? faltantesOtrosList
+      : faltantesERP;
+
   return (
     <div className="w-full bg-white border border-slate-200 rounded-2xl p-6 shadow-sm my-6">
       
@@ -179,7 +191,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h3 className="text-lg font-normal text-slate-900 flex items-center gap-2">
-            <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+            <FileSpreadsheet className="w-5 h-5 text-blue-900" />
             Resultados del Cruce Fiscal
           </h3>
           <p className="text-xs text-slate-500 mt-1 font-normal">
@@ -189,7 +201,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
 
         <button
           onClick={exportToExcel}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium shadow transition-all active:scale-95 cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-900 hover:bg-blue-950 text-white text-xs font-medium shadow transition-all active:scale-95 cursor-pointer"
         >
           <Download className="w-4 h-4" />
           <span>Exportar Todo a Excel</span>
@@ -209,9 +221,9 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
           }`}
         >
           <AlertCircle className="w-4 h-4 text-rose-600" />
-          <span>Faltantes en ERP (Peligro de Deducción)</span>
+          <span>Faltantes en ERP (Compras Habituales)</span>
           <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800 font-normal border border-rose-200">
-            {faltantesERP.length}
+            {faltantesHabitualesList.length}
           </span>
         </button>
 
@@ -236,13 +248,13 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
           onClick={() => setActiveTab('conciliadas')}
           className={`flex items-center gap-2 py-3 px-5 border-b-2 text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'conciliadas'
-              ? 'border-emerald-600 text-emerald-800 bg-emerald-50 rounded-t-lg'
+              ? 'border-blue-900 text-blue-950 bg-blue-50 rounded-t-lg'
               : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
-          <CheckCircle className="w-4 h-4 text-emerald-600" />
+          <CheckCircle className="w-4 h-4 text-blue-900" />
           <span>Conciliadas Correctamente</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-normal border border-emerald-200">
+          <span className="px-2 py-0.5 rounded-full text-[10px] bg-blue-100 text-blue-950 font-normal border border-blue-200">
             {conciliadas.length}
           </span>
         </button>
@@ -251,12 +263,54 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
       {/* Tab Contents */}
       <div>
         {activeTab === 'faltantes' && (
-          <ReconciliationTable
-            data={faltantesERP}
-            columns={columnsFaltantes}
-            accentColor="red"
-            emptyMessage="¡Excelente! No hay facturas del SAT faltantes en el ERP."
-          />
+          <div className="space-y-4">
+            
+            {/* Sub-Filtros para separar Compras Habituales vs Gastos Directos */}
+            <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex-wrap gap-2">
+              <span className="text-xs font-medium text-slate-700">
+                Filtrar Faltantes en ERP por tipo de proveedor:
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setFaltantesSubFilter('habituales')}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    faltantesSubFilter === 'habituales'
+                      ? 'bg-rose-600 text-white shadow-2xs'
+                      : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  🔴 Proveedores Habituales ({faltantesHabitualesList.length})
+                </button>
+                <button
+                  onClick={() => setFaltantesSubFilter('otros')}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    faltantesSubFilter === 'otros'
+                      ? 'bg-slate-800 text-white shadow-2xs'
+                      : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  ⚪ Gastos Directos / Sin ERP ({faltantesOtrosList.length})
+                </button>
+                <button
+                  onClick={() => setFaltantesSubFilter('todos')}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    faltantesSubFilter === 'todos'
+                      ? 'bg-blue-900 text-white shadow-2xs'
+                      : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  Ver Todos ({faltantesERP.length})
+                </button>
+              </div>
+            </div>
+
+            <ReconciliationTable
+              data={displayFaltantes}
+              columns={columnsFaltantes}
+              accentColor="red"
+              emptyMessage="No se encontraron facturas faltantes bajo este filtro."
+            />
+          </div>
         )}
 
         {activeTab === 'sobrantes' && (

@@ -54,6 +54,7 @@ export interface ItemFaltanteERP {
   metodoPagoSAT: string;
   folio?: string;
   serie?: string;
+  esProveedorHabitual?: boolean;
 }
 
 export interface ItemSobranteERP {
@@ -76,6 +77,8 @@ export interface MetricasConciliacion {
   montoConciliadas: number;
   faltantesERPCount: number;
   montoFaltantesERP: number;
+  faltantesERPCountHabituales?: number;
+  montoFaltantesERPHabituales?: number;
   sobrantesERPCount: number;
   montoSobrantesERP: number;
   canceladasSATCount: number;

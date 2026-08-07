@@ -361,6 +361,29 @@ export function reconcile(
     }
   }
 
+  // Identificar Proveedores Habituales (aquellos que concilian o existen en el ERP)
+  const proveedoresHabitualesSet = new Set<string>();
+  for (const item of conciliadas) {
+    if (item.rfcEmisor) proveedoresHabitualesSet.add(normalizeText(item.rfcEmisor));
+    if (item.nombreEmisor) proveedoresHabitualesSet.add(normalizeText(item.nombreEmisor));
+  }
+  for (const erp of erpData) {
+    if (erp.rfc) proveedoresHabitualesSet.add(normalizeText(erp.rfc));
+    if (erp.proveedor) proveedoresHabitualesSet.add(normalizeText(erp.proveedor));
+  }
+
+  for (const f of faltantesERP) {
+    const cleanRfc = normalizeText(f.rfcEmisor);
+    const cleanNombre = normalizeText(f.nombreEmisor);
+    const match =
+      (cleanRfc && proveedoresHabitualesSet.has(cleanRfc)) ||
+      (cleanNombre && proveedoresHabitualesSet.has(cleanNombre)) ||
+      Array.from(proveedoresHabitualesSet).some(
+        (p) => p.length >= 4 && (cleanNombre.includes(p) || p.includes(cleanNombre))
+      );
+    f.esProveedorHabitual = Boolean(match);
+  }
+
   // Ordenar de mayor a menor importe / diferencia
   faltantesERP.sort((a, b) => b.total - a.total);
   sobrantesERP.sort((a, b) => b.total - a.total);
@@ -377,6 +400,10 @@ export function reconcile(
   const montoFaltantesERP = faltantesERP.reduce((acc, i) => acc + i.total, 0);
   const montoSobrantesERP = sobrantesERP.reduce((acc, i) => acc + i.total, 0);
 
+  const faltantesHabituales = faltantesERP.filter((f) => f.esProveedorHabitual);
+  const faltantesERPCountHabituales = faltantesHabituales.length;
+  const montoFaltantesERPHabituales = faltantesHabituales.reduce((acc, i) => acc + i.total, 0);
+
   const metricas: MetricasConciliacion = {
     totalSAT: satData.length,
     montoTotalSAT,
@@ -386,6 +413,8 @@ export function reconcile(
     montoConciliadas,
     faltantesERPCount: faltantesERP.length,
     montoFaltantesERP,
+    faltantesERPCountHabituales,
+    montoFaltantesERPHabituales,
     sobrantesERPCount: sobrantesERP.length,
     montoSobrantesERP,
     canceladasSATCount,

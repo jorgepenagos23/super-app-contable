@@ -45,8 +45,8 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({ metricas }) =>
         </div>
       </div>
 
-      {/* Card 2: Faltantes en ERP (Riesgo Deducción) */}
-      <div className="bg-white border border-rose-200 rounded-3xl p-6 shadow-xs relative overflow-hidden transition-all">
+      {/* Card 2: Faltantes en ERP (Proveedores Habituales de Compras) */}
+      <div className="bg-white border border-rose-200 rounded-3xl p-6 shadow-2xs relative overflow-hidden transition-all">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-rose-700 uppercase tracking-wider">Faltantes en ERP</span>
           <div className="p-2 rounded-2xl bg-rose-50 text-rose-700 border border-rose-200">
@@ -55,16 +55,16 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({ metricas }) =>
         </div>
         <div className="mt-4">
           <div className="text-2xl font-medium text-slate-900 tracking-tight">
-            {metricas.faltantesERPCount} <span className="text-xs font-normal text-slate-500">facturas</span>
+            {metricas.faltantesERPCountHabituales ?? metricas.faltantesERPCount} <span className="text-xs font-normal text-slate-500">facturas habituales</span>
           </div>
           {/* MONTO EN NEGRITA DESTACADA */}
           <div className="text-xl font-black text-rose-700 mt-1">
-            {formatMoney(metricas.montoFaltantesERP)}
+            {formatMoney(metricas.montoFaltantesERPHabituales ?? metricas.montoFaltantesERP)}
           </div>
         </div>
         <div className="mt-4 text-xs text-rose-800 flex items-center justify-between border-t border-rose-100 pt-3 font-medium">
-          <span>Riesgo de Deducción Fiscal</span>
-          <span>En SAT, No ERP</span>
+          <span>Compras Habituales sin ERP</span>
+          <span>Proveedores Frecuentes</span>
         </div>
       </div>
 
