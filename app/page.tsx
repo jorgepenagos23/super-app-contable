@@ -313,25 +313,41 @@ export default function Home() {
                 {/* 3. ÚNICO BOTÓN PRINCIPAL DE CONCILIACIÓN (3 cols) */}
                 <div className="md:col-span-3 flex flex-col gap-1">
                   <button
-                    onClick={() => handleStartReconciliation()}
-                    disabled={isLoading}
-                    className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
+                    onClick={() => {
+                      if (!isFileReady) {
+                        alert('⚠️ Por favor cargue primero su archivo Excel o CSV del SAT antes de ejecutar la conciliación.');
+                        return;
+                      }
+                      handleStartReconciliation();
+                    }}
+                    disabled={!isFileReady || isLoading}
+                    className={`w-full h-14 font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 border ${
+                      isFileReady
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer active:scale-[0.98]'
+                        : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75'
+                    }`}
+                    title={isFileReady ? 'Ejecutar Conciliación SAT vs ERP' : 'Cargue primero un archivo Excel del SAT'}
                   >
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin text-white" />
                         <span>Procesando...</span>
                       </>
-                    ) : (
+                    ) : isFileReady ? (
                       <>
                         <Zap className="w-4 h-4 fill-white" />
                         <span>Ejecutar Conciliación</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldAlert className="w-4 h-4 text-slate-500" />
+                        <span>Cargue Excel para Conciliar</span>
                       </>
                     )}
                   </button>
 
                   <span className="text-[10px] text-center text-slate-400 font-medium">
-                    {erpData.length > 0 ? `🟢 ${erpData.length} compras ERP listas` : 'Esperando datos...'}
+                    {isFileReady ? '🟢 Archivo Excel listo para conciliar' : '⚠️ Archivo Excel requerido'}
                   </span>
                 </div>
               </div>

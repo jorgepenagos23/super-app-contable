@@ -130,6 +130,11 @@ export function useReconciliation() {
   const startReconciliation = async (customFile?: File, targetSupplierFilter?: string) => {
     const fileToProcess = customFile || satFile;
 
+    if (!fileToProcess && satData.length === 0 && !isDemoMode) {
+      setFileError('Por favor seleccione primero su archivo Excel del SAT antes de ejecutar la conciliación.');
+      return;
+    }
+
     setIsLoading(true);
     setFileError(null);
     setErpError(null);
