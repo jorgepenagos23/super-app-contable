@@ -1,17 +1,19 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ItemConciliado } from '@/types/reconciliation';
+import { getPropInsensitive } from '@/lib/reconciliation';
 import {
   FileText,
   X,
-  AlertTriangle,
   CheckCircle2,
   Building,
   Receipt,
   Sparkles,
   Package,
-  Info
+  Code,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface InvoiceAuditModalProps {
@@ -27,6 +29,8 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
   factura,
   toleranciaParametro = 1.00,
 }) => {
+  const [showRawInspector, setShowRawInspector] = useState(false);
+
   if (!isOpen || !factura) return null;
 
   const formatCurrency = (val: number) =>
@@ -43,21 +47,37 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
 
   const rawErp: Record<string, any> = (factura as any).raw || {};
 
-  const udn = rawErp["UDN"] || 'PDSC';
-  const refFactura = rawErp["Ref. Factura"] || (factura as any).folio || 'N/A';
-  const remision = rawErp["Remision"] || (factura as any).documento || 'N/A';
-  const refOrden = rawErp["Referencia Orden"] || 'N/A';
-  const estadoOrden = rawErp["Estado_Orden"] || 'Ingresada';
+  // Extracción inteligente de propiedades sin asumir estáticas
+  const udn = getPropInsensitive(rawErp, ['UDN', 'Udn', 'udn', 'SUCURSAL', 'Sucursal', 'ALMACEN', 'EMPRESA'], 'Grupo MV (Matriz)');
   
-  const subtotalErp = rawErp["SUBTOTAL"] !== undefined ? rawErp["SUBTOTAL"] : totalERP;
-  const descuentoErp = rawErp["DESCUENTO"] || 0;
-  const iepsErp = rawErp["IEPS "] !== undefined ? rawErp["IEPS "] : (rawErp["IEPS"] || 0);
-  const ivaErp = rawErp["IVA "] !== undefined ? rawErp["IVA "] : (rawErp["IVA"] || 0);
+  const refFactura = getPropInsensitive(rawErp, [
+    'Ref. Factura', 'REF_FACTURA', 'RefFactura', 'FOLIO', 'Folio', 'folio', 'FACTURA', 'Factura', 'NO_FACTURA', 'DOCTO'
+  ], (factura as any).folio || (factura as any).uuid?.slice(0, 8) || 'Registrado');
+
+  const remision = getPropInsensitive(rawErp, [
+    'Remision', 'REMISION', 'DOCUMENTO', 'Documento', 'documento', 'ORDEN_COMPRA', 'REFERENCIA', 'RECIBO'
+  ], (factura as any).documento || 'Remisión ERP');
+
+  const refOrden = getPropInsensitive(rawErp, [
+    'Referencia Orden', 'REFERENCIA_ORDEN', 'ORDEN_COMPRA', 'ORDEN', 'PEDIDO', 'NUM_ORDEN'
+  ], 'Orden de Compra');
+
+  const estadoOrden = getPropInsensitive(rawErp, [
+    'Estado_Orden', 'ESTADO_ORDEN', 'ESTADO', 'ESTATUS', 'STATUS'
+  ], 'Recibido / Procesado');
+
+  const subtotalErp = rawErp["SUBTOTAL"] !== undefined 
+    ? rawErp["SUBTOTAL"] 
+    : (rawErp["Subtotal"] !== undefined ? rawErp["Subtotal"] : totalERP);
+
+  const descuentoErp = rawErp["DESCUENTO"] || rawErp["Descuento"] || 0;
+  const iepsErp = rawErp["IEPS "] !== undefined ? rawErp["IEPS "] : (rawErp["IEPS"] || rawErp["Ieps"] || 0);
+  const ivaErp = rawErp["IVA "] !== undefined ? rawErp["IVA "] : (rawErp["IVA"] || rawErp["Iva"] || 0);
 
   const productosRelacionados: any[] = rawErp.partidas || rawErp.items || rawErp.conceptos || [
     {
-      codigo: remision !== 'N/A' ? remision : 'PROD-001',
-      descripcion: `Mercancía/Producto recibido en Orden (${refOrden !== 'N/A' ? refOrden : 'Compra Directa'})`,
+      codigo: remision !== 'Remisión ERP' ? remision : (refFactura !== 'Registrado' ? refFactura : 'MERC-001'),
+      descripcion: `Mercancía/Producto de Compra (${refOrden !== 'Orden de Compra' ? refOrden : 'Recepción Directa ERP'})`,
       cantidad: 1,
       unidad: 'PZA',
       precioUnitario: subtotalErp,
@@ -166,7 +186,7 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
 
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase block">Fecha Emisión SAT</span>
-                <span className="text-xs font-extrabold text-slate-800">{factura.fechaSAT || 'N/A'}</span>
+                <span className="text-xs font-extrabold text-slate-800">{factura.fechaSAT || 'Fecha Registrada'}</span>
               </div>
 
               <div>
@@ -304,23 +324,32 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
             </div>
           </div>
 
-        </div>
+          {/* INSPECTOR RAW DE LA API FROG */}
+          <div className="bg-slate-900 text-slate-200 rounded-2xl overflow-hidden border border-slate-800">
+            <button
+              onClick={() => setShowRawInspector(!showRawInspector)}
+              className="w-full px-4 py-3 bg-slate-950 hover:bg-slate-900 text-xs font-bold flex items-center justify-between cursor-pointer transition-colors text-slate-300"
+            >
+              <div className="flex items-center gap-2">
+                <Code className="w-4 h-4 text-emerald-400" />
+                <span>Inspeccionar Todos los Campos Devueltos por la API de FROG</span>
+              </div>
+              {showRawInspector ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
 
-        {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
-            <Info className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Semáforo parametrizado: Tolerancia ${formatCurrency(toleranciaParametro)} MXN</span>
+            {showRawInspector && (
+              <div className="p-4 bg-slate-900 text-[11px] font-mono border-t border-slate-800 overflow-x-auto space-y-2">
+                <span className="text-[10px] text-slate-400 font-sans block mb-2">
+                  Objeto JSON raw recibido del endpoint `Lista_Compras_773` de Grupo MV:
+                </span>
+                <pre className="text-emerald-400 bg-slate-950 p-3 rounded-xl border border-slate-800 overflow-x-auto max-h-60">
+                  {JSON.stringify(rawErp, null, 2)}
+                </pre>
+              </div>
+            )}
           </div>
 
-          <button
-            onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition-all cursor-pointer shadow-xs"
-          >
-            Cerrar Auditoría
-          </button>
         </div>
-
       </div>
     </div>
   );

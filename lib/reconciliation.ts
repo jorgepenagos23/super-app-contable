@@ -17,7 +17,40 @@ export function normalizeText(text: string): string {
 }
 
 /**
- * Normaliza respuestas de la API del ERP Grupo MV (Lista_Compras_773)
+ * Busca de forma insensible a mayúsculas/minúsculas y espacios entre múltiples posibles llaves de un objeto.
+ */
+export function getPropInsensitive(obj: any, keys: string[], defaultVal: string = ''): string {
+  if (!obj || typeof obj !== 'object') return defaultVal;
+
+  // 1. Coincidencia directa exacta de llave
+  for (const key of keys) {
+    if (obj[key] !== undefined && obj[key] !== null && String(obj[key]).trim() !== '') {
+      return String(obj[key]).trim();
+    }
+  }
+
+  // 2. Coincidencia normalizada insensible a caso y caracteres especiales
+  const objKeys = Object.keys(obj);
+  const cleanKeys = keys.map(k => k.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+
+  for (const objKey of objKeys) {
+    const cleanObjKey = objKey.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    for (const ck of cleanKeys) {
+      if (cleanObjKey === ck || (ck.length >= 4 && cleanObjKey.includes(ck))) {
+        const val = obj[objKey];
+        if (val !== undefined && val !== null && String(val).trim() !== '') {
+          return String(val).trim();
+        }
+      }
+    }
+  }
+
+  return defaultVal;
+}
+
+/**
+ * Normaliza respuestas de la API del ERP Grupo MV (Lista_Compras_773 / FROG API)
+ * Extrae dinámicamente todos los campos disponibles sin asumir nombres de columna fijos.
  */
 export function normalizeERPData(rawInput: any): FacturaERP[] {
   let rawErpList: any[] = [];
@@ -25,7 +58,7 @@ export function normalizeERPData(rawInput: any): FacturaERP[] {
   if (Array.isArray(rawInput)) {
     rawErpList = rawInput;
   } else if (rawInput && typeof rawInput === 'object') {
-    for (const key of ['data', 'compras', 'result', 'items', 'rows', 'table', 'LISTA', 'REPORTES_API']) {
+    for (const key of ['data', 'compras', 'result', 'items', 'rows', 'table', 'LISTA', 'REPORTES_API', 'datos']) {
       if (Array.isArray(rawInput[key])) {
         rawErpList = rawInput[key];
         break;
@@ -41,44 +74,75 @@ export function normalizeERPData(rawInput: any): FacturaERP[] {
 
   const facturasErp: FacturaERP[] = [];
 
-  for (const item of rawErpList) {
+  for (let idx = 0; idx < rawErpList.length; idx++) {
+    const item = rawErpList[idx];
     if (!item || typeof item !== 'object') continue;
 
-    const rawXmlUuid = String(
-      item["XML / UUID"] || item["XML/UUID"] || item["XML"] || item.UUID || item.uuid || item.FolioFiscal || ''
-    ).trim();
+    // Extracción inteligente de UUID / XML
+    const rawXmlUuid = getPropInsensitive(item, [
+      'XML / UUID', 'XML/UUID', 'XML', 'UUID', 'uuid', 'FolioFiscal', 'FOLIO_FISCAL', 'CLAVE_SAT', 'CFDI_UUID', 'FOLIOFISCAL'
+    ]);
 
-    const refFactura = String(item["Ref. Factura"] || item.FOLIO || item.folio || '').trim();
-    const remision = String(item.Remision || item.REMISION || item.DOCUMENTO || item.documento || '').trim();
+    // Extracción de Folio y Remisión
+    const refFactura = getPropInsensitive(item, [
+      'Ref. Factura', 'REF_FACTURA', 'RefFactura', 'FOLIO', 'Folio', 'folio', 'FACTURA', 'Factura', 'NO_FACTURA', 'FOLIO_FACTURA', 'DOCTO', 'DOCUMENTO'
+    ]);
 
-    const proveedor = String(
-      item.proveedor || item.PROVEEDOR || item.NOMBRE_PROVEEDOR || item.NombreProveedor ||
-      item.RAZON_SOCIAL || item.RazonSocial || 'PROVEEDOR ERP'
-    ).trim();
+    const remision = getPropInsensitive(item, [
+      'Remision', 'REMISION', 'DOCUMENTO', 'Documento', 'documento', 'ORDEN_COMPRA', 'REFERENCIA', 'RECIBO', 'NRO_DOCUMENTO', 'DOCUMENTO_ORIGEN'
+    ]);
 
-    const fecha = String(
-      item.fecha_recepcion || item.FECHA_RECEPCION || item.FECHA || item.fecha || ''
-    ).trim();
+    // Extracción de Proveedor y RFC
+    const proveedor = getPropInsensitive(item, [
+      'proveedor', 'PROVEEDOR', 'NOMBRE_PROVEEDOR', 'NombreProveedor', 'RAZON_SOCIAL', 'RazonSocial', 'NOMBRE', 'Nombre', 'EMISOR', 'NombreEmisor', 'PROV_NOMBRE'
+    ], 'PROVEEDOR GRUPO MV');
 
-    const rawTotal = item["TOTAL FACTURA"] !== undefined 
-      ? item["TOTAL FACTURA"] 
-      : (item["Total Recibido (FROG)"] !== undefined ? item["Total Recibido (FROG)"] : (item.TOTAL || item.total || 0));
+    const rfc = getPropInsensitive(item, [
+      'RFC', 'Rfc', 'rfc', 'RFC_PROVEEDOR', 'RfcProveedor', 'RFC_EMISOR', 'RfcEmisor', 'RFC PROVEEDOR', 'RFCPROVEEDOR'
+    ], '');
 
-    const total = typeof rawTotal === 'number' 
-      ? rawTotal 
-      : parseFloat(String(rawTotal).replace(/[^0-9.-]+/g, '')) || 0;
+    // Extracción de Fecha
+    const fecha = getPropInsensitive(item, [
+      'fecha_recepcion', 'FECHA_RECEPCION', 'FECHA', 'Fecha', 'fecha', 'FECHA_COMPRA', 'FECHA_EMISION', 'FECHA_DOCTO', 'Fecha_Recepcion'
+    ], '');
+
+    // Extracción de Importes (Total, Subtotal, IVA)
+    const rawTotalStr = getPropInsensitive(item, [
+      'TOTAL FACTURA', 'TOTAL_FACTURA', 'Total Recibido (FROG)', 'TOTAL_RECIBIDO', 'TOTAL', 'Total', 'total', 'IMPORTE_TOTAL', 'MONTO_TOTAL', 'IMPORTE', 'MONTO'
+    ], '0');
+
+    const total = parseFloat(String(rawTotalStr).replace(/[^0-9.-]+/g, '')) || 0;
+
+    const rawSubtotalStr = getPropInsensitive(item, ['SUBTOTAL', 'Subtotal', 'subtotal', 'IMPORTE_NETO', 'BASE', 'SUBTOTAL_COMPRA'], '');
+    const subtotal = rawSubtotalStr ? parseFloat(String(rawSubtotalStr).replace(/[^0-9.-]+/g, '')) : undefined;
+
+    const rawIvaStr = getPropInsensitive(item, ['IVA ', 'IVA', 'Iva', 'iva', 'IMPUESTO', 'IVA_TRASLADADO', 'MONTO_IVA'], '');
+    const iva = rawIvaStr ? parseFloat(String(rawIvaStr).replace(/[^0-9.-]+/g, '')) : undefined;
+
+    // UDN, Orden y Estado
+    const udn = getPropInsensitive(item, ['UDN', 'Udn', 'udn', 'SUCURSAL', 'Sucursal', 'ALMACEN', 'EMPRESA'], '');
+    const refOrden = getPropInsensitive(item, ['Referencia Orden', 'REFERENCIA_ORDEN', 'ORDEN_COMPRA', 'ORDEN', 'PEDIDO'], '');
+    const estadoOrden = getPropInsensitive(item, ['Estado_Orden', 'ESTADO_ORDEN', 'ESTADO', 'ESTATUS', 'STATUS'], '');
+
+    const effectiveUuid = rawXmlUuid || refFactura || remision || `FROG-REG-${idx + 1}`;
 
     facturasErp.push({
-      uuid: rawXmlUuid || refFactura || remision,
+      uuid: effectiveUuid,
       cleanUuid: normalizeText(rawXmlUuid),
       cleanRef: normalizeText(refFactura),
       cleanRemision: normalizeText(remision),
       cleanProveedor: normalizeText(proveedor),
       proveedor,
+      rfc,
       fecha,
       total,
-      folio: refFactura,
-      documento: remision,
+      subtotal,
+      iva,
+      udn,
+      refOrden,
+      estadoOrden,
+      folio: refFactura || remision || effectiveUuid,
+      documento: remision || refFactura || 'Remisión Registrada',
       raw: item,
     } as any);
   }
@@ -88,7 +152,6 @@ export function normalizeERPData(rawInput: any): FacturaERP[] {
 
 /**
  * Motor de Conciliación Fiscal SAT vs ERP
- * Ordena por defecto todas las listas de MAYOR a MENOR importe / diferencia
  */
 export function reconcile(
   satData: FacturaSAT[],
@@ -220,13 +283,16 @@ export function reconcile(
         rfcEmisor: sat.rfcEmisor,
         nombreEmisor: sat.nombreEmisor,
         fechaSAT: sat.fecha,
-        fechaERP: erpMatch.fecha,
+        fechaERP: erpMatch.fecha || sat.fecha,
         totalSAT: sat.total,
         totalERP: erpMatch.total,
         diferencia: Number(dif.toFixed(2)),
         estatusSAT: sat.estatus,
         metodoPagoSAT: sat.metodoPago,
         tipoCoincidencia: matchType,
+        folio: erpMatch.folio || sat.folio,
+        documento: erpMatch.documento,
+        raw: erpMatch.raw || erpMatch,
       } as any);
     } else {
       faltantesERP.push({
@@ -255,13 +321,12 @@ export function reconcile(
         folio: erp.folio,
         serie: erp.serie,
         documento: erp.documento,
-      });
+        raw: erp.raw || erp,
+      } as any);
     }
   }
 
-  // ========================================================
-  // ORDENAR TODAS LAS LISTAS DE MAYOR A MENOR IMPORTE / DIFERENCIA
-  // ========================================================
+  // Ordenar de mayor a menor importe
   faltantesERP.sort((a, b) => b.total - a.total);
   sobrantesERP.sort((a, b) => b.total - a.total);
   conciliadas.sort((a, b) => {
