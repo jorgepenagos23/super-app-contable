@@ -156,27 +156,8 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Control Panel Unificado e Intuitivo */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex flex-col gap-4">
-              
-              {/* Encabezado Principal Limpio */}
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <h2 className="text-lg font-black text-slate-900 tracking-tight">
-                    Conciliación Compras PARAL vs. SAT
-                  </h2>
-                </div>
-
-                <button
-                  onClick={resetAll}
-                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-200"
-                  title="Reiniciar Formulario"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Limpiar</span>
-                </button>
-              </div>
+            {/* Control Panel Minimalista */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-xs flex flex-col gap-3">
 
               {/* Grid Principal: 1. Cargar Archivo, 2. Rango Fechas, 3. UNICO BOTÓN CONCILIAR */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200">
