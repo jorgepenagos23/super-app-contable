@@ -142,17 +142,17 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 
         <div className="flex items-center gap-4 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 shadow-2xs flex-wrap sm:flex-nowrap">
           <div className="text-right border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0 sm:pr-4">
-            <span className="text-[10px] uppercase font-normal text-slate-600 block">Total Conciliado SAT</span>
+            <span className="text-[10px] uppercase font-normal text-slate-600 block">SAT</span>
             <span className="text-base font-black text-slate-950">{formatCurrency(montoTotalConciliadas)}</span>
           </div>
 
           <div className="text-right border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0 sm:pr-4">
-            <span className="text-[10px] uppercase font-normal text-blue-900 block">Total Conciliado FROG</span>
+            <span className="text-[10px] uppercase font-normal text-blue-900 block">FROG</span>
             <span className="text-base font-black text-blue-950">{formatCurrency(montoTotalERPConciliadas)}</span>
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] uppercase font-normal text-slate-600 block">Diferencia Neta</span>
+            <span className="text-[10px] uppercase font-normal text-slate-600 block">Diferencia</span>
             <span className={`text-base font-black ${diferenciaTotalConciliadas > 1.00 ? 'text-rose-600' : 'text-slate-800'}`}>
               {formatCurrency(diferenciaTotalConciliadas)}
             </span>
@@ -259,17 +259,17 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                     </span>
                   </div>
 
-                  {/* Total SAT Conciliado (MONTO EN NEGRITA) */}
-                  <div className="text-right min-w-[110px]">
-                    <span className="text-[10px] font-normal text-slate-500 uppercase block">Total SAT ($)</span>
+                  {/* SAT Conciliado (MONTO EN NEGRITA) */}
+                  <div className="text-right min-w-[100px]">
+                    <span className="text-[10px] font-normal text-slate-500 uppercase block">SAT</span>
                     <span className="text-xs font-black text-slate-900">
                       {formatCurrency(prov.montoTotalSAT)}
                     </span>
                   </div>
 
-                  {/* Total FROG ERP Conciliado (MONTO EN NEGRITA) */}
-                  <div className="text-right min-w-[110px]">
-                    <span className="text-[10px] font-normal text-blue-900 uppercase block">Total FROG ($)</span>
+                  {/* FROG ERP Conciliado (MONTO EN NEGRITA) */}
+                  <div className="text-right min-w-[100px]">
+                    <span className="text-[10px] font-normal text-blue-900 uppercase block">FROG</span>
                     <span className="text-xs font-black text-blue-950">
                       {formatCurrency(prov.montoTotalERP)}
                     </span>
@@ -315,8 +315,8 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                           <th className="px-3 py-2">Folio Fiscal (UUID)</th>
                           <th className="px-3 py-2">Fecha SAT</th>
                           <th className="px-3 py-2">Método</th>
-                          <th className="px-3 py-2 text-right">Total SAT</th>
-                          <th className="px-3 py-2 text-right">Total FROG</th>
+                          <th className="px-3 py-2 text-right">SAT</th>
+                          <th className="px-3 py-2 text-right">FROG</th>
                           <th className="px-3 py-2 text-right">Diferencia</th>
                           <th className="px-3 py-2 text-center">Auditar</th>
                         </tr>

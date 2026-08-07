@@ -90,7 +90,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
     { key: 'fecha', header: 'Fecha', sortable: true },
     {
       key: 'total',
-      header: 'Total (ERP)',
+      header: 'FROG',
       align: 'right' as const,
       sortable: true,
       render: (item: any) => (
@@ -129,7 +129,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
     },
     {
       key: 'totalSAT',
-      header: 'Total SAT',
+      header: 'SAT',
       align: 'right' as const,
       sortable: true,
       render: (item: any) => (
@@ -140,7 +140,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
     },
     {
       key: 'totalERP',
-      header: 'Total ERP',
+      header: 'FROG',
       align: 'right' as const,
       sortable: true,
       render: (item: any) => (
