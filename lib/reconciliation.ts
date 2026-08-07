@@ -94,10 +94,6 @@ export function normalizeERPData(rawInput: any): FacturaERP[] {
     if (!rawXmlUuid) {
       for (const val of Object.values(item)) {
         if (typeof val === 'string') {
-          // Ignora cadenas de fecha/hora (p.ej. "2026-01-09T00:00:00"), que de otro modo
-          // superan el chequeo alfanumérico y se confunden con un UUID abreviado.
-          if (/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}:\d{2})?$/.test(val.trim())) continue;
-
           const cleanVal = normalizeText(val);
           if (cleanVal.length >= 6 && cleanVal.length <= 36 && /^[A-Z0-9]+$/.test(cleanVal)) {
             rawXmlUuid = val;
@@ -176,7 +172,7 @@ export function normalizeERPData(rawInput: any): FacturaERP[] {
 
 /**
  * Motor de Conciliación Fiscal SAT vs ERP
- * Soporta Amarre de UUID 3-3 (Primeros 3 + Últimos 3) insensibles a mayúsculas/minúsculas y formato.
+ * Jerarquía estricta para evitar falsos positivos de folios con montos dispares.
  */
 export function reconcile(
   satData: FacturaSAT[],
@@ -216,8 +212,8 @@ export function reconcile(
     let matchType = '';
 
     // ========================================================
-    // REGLA 1: AMARRE UUID 3-3 (Primeros 3 + Últimos 3)
-    // Insensible a Mayúsculas/Minúsculas, puntos, guiones y espacios.
+    // REGLA 1: AMARRE POR UUID (Completo o 3-3)
+    // El Folio Fiscal UUID es el identificador oficial único del SAT.
     // ========================================================
     if (satFirst3 && satLast3 && satFirst3.length === 3 && satLast3.length === 3) {
       for (let i = 0; i < erpList.length; i++) {
@@ -237,7 +233,7 @@ export function reconcile(
             erpUuidClean.includes(satUuidClean)
           ) {
             matchIdx = i;
-            matchType = `Amarre FROG ERP 3-3 (${satFirst3}...${satLast3})`;
+            matchType = `Amarre UUID 3-3 (${satFirst3}...${satLast3})`;
             break;
           }
         }
@@ -245,43 +241,8 @@ export function reconcile(
     }
 
     // ========================================================
-    // REGLA 2: UUID COMPLETO
-    // ========================================================
-    if (matchIdx === -1 && satUuidClean.length >= 6) {
-      for (let i = 0; i < erpList.length; i++) {
-        if (erpVisited.has(i)) continue;
-        const erpUuidClean = (erpList[i] as any).cleanUuid;
-        if (!erpUuidClean) continue;
-
-        if (satUuidClean === erpUuidClean || satUuidClean.includes(erpUuidClean) || erpUuidClean.includes(satUuidClean)) {
-          matchIdx = i;
-          matchType = 'Amarre por XML / UUID Completo';
-          break;
-        }
-      }
-    }
-
-    // ========================================================
-    // REGLA 3: REF. FACTURA / FOLIO
-    // ========================================================
-    if (matchIdx === -1 && satFolioClean.length >= 3) {
-      for (let i = 0; i < erpList.length; i++) {
-        if (erpVisited.has(i)) continue;
-        const erpItem = erpList[i] as any;
-
-        if (
-          (erpItem.cleanRef && (satFolioClean.includes(erpItem.cleanRef) || erpItem.cleanRef.includes(satFolioClean))) ||
-          (erpItem.cleanRemision && (satFolioClean.includes(erpItem.cleanRemision) || erpItem.cleanRemision.includes(satFolioClean)))
-        ) {
-          matchIdx = i;
-          matchType = 'Amarre por Ref. Factura / Folio';
-          break;
-        }
-      }
-    }
-
-    // ========================================================
-    // REGLA 4: PROVEEDOR + TOTAL EXACTO
+    // REGLA 2: PROVEEDOR + TOTAL EXACTO (Tolerancia ≤ $1.00)
+    // Si no hay UUID 3-3, priorizamos coincidencia de Proveedor e Importe Monetario.
     // ========================================================
     if (matchIdx === -1 && satProveedorClean.length >= 3) {
       for (let i = 0; i < erpList.length; i++) {
@@ -301,7 +262,34 @@ export function reconcile(
     }
 
     // ========================================================
-    // REGLA 5: TOTAL EXACTO ($0.05 Tolerancia)
+    // REGLA 3: REF. FACTURA / FOLIO (CON COINCIDENCIA DE PROVEEDOR E IMPORTE RAZONABLE)
+    // Evita falsos positivos de folios parciales con montos dispares ($479k vs $88).
+    // ========================================================
+    if (matchIdx === -1 && satFolioClean.length >= 3) {
+      for (let i = 0; i < erpList.length; i++) {
+        if (erpVisited.has(i)) continue;
+        const erpItem = erpList[i] as any;
+        const totalDiff = Math.abs(sat.total - erpItem.total);
+
+        const matchFolio =
+          (erpItem.cleanRef && (satFolioClean.includes(erpItem.cleanRef) || erpItem.cleanRef.includes(satFolioClean))) ||
+          (erpItem.cleanRemision && (satFolioClean.includes(erpItem.cleanRemision) || erpItem.cleanRemision.includes(satFolioClean)));
+
+        const matchProveedor =
+          satProveedorClean.length >= 3 &&
+          (satProveedorClean.includes(erpItem.cleanProveedor) || erpItem.cleanProveedor.includes(satProveedorClean));
+
+        // Solo amarramos por Folio si el proveedor coincide Y el monto no difiere por cifras desproporcionadas
+        if (matchFolio && (matchProveedor || totalDiff <= 50.0)) {
+          matchIdx = i;
+          matchType = 'Amarre por Ref. Factura / Folio';
+          break;
+        }
+      }
+    }
+
+    // ========================================================
+    // REGLA 4: IMPORTE TOTAL EXACTO ($0.05 Tolerancia entre mismo Proveedor)
     // ========================================================
     if (matchIdx === -1 && sat.total > 0) {
       for (let i = 0; i < erpList.length; i++) {
@@ -309,7 +297,10 @@ export function reconcile(
         const erpItem = erpList[i] as any;
         const totalDiff = Math.abs(sat.total - erpItem.total);
 
-        if (totalDiff <= 0.05) {
+        if (
+          totalDiff <= 0.05 &&
+          (satProveedorClean.includes(erpItem.cleanProveedor) || erpItem.cleanProveedor.includes(satProveedorClean))
+        ) {
           matchIdx = i;
           matchType = 'Amarre por Importe Total ($)';
           break;
