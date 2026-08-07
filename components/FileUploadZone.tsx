@@ -4,26 +4,35 @@ import React, { useRef } from 'react';
 import { FileSpreadsheet, Upload, CheckCircle2, X } from 'lucide-react';
 
 interface FileUploadZoneProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect?: (file: File) => void;
+  onFileSelected?: (file: File) => void;
   isLoading?: boolean;
   fileName?: string;
+  fileError?: string;
   totalParsedRows?: number;
   onClearFile?: () => void;
 }
 
 export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
   onFileSelect,
+  onFileSelected,
   isLoading = false,
   fileName,
+  fileError,
   totalParsedRows = 0,
   onClearFile,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const notifyFileSelect = (file: File) => {
+    if (onFileSelect) onFileSelect(file);
+    if (onFileSelected) onFileSelected(file);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      onFileSelect(file);
+      notifyFileSelect(file);
     }
   };
 
@@ -31,7 +40,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      onFileSelect(file);
+      notifyFileSelect(file);
     }
   };
 

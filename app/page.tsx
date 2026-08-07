@@ -230,6 +230,10 @@ export default function Home() {
                 {/* Cargar Archivo SAT (5 cols) */}
                 <div className="md:col-span-5">
                   <FileUploadZone
+                    onFileSelect={(file) => {
+                      setSatFile(file);
+                      startReconciliation(file, filtroProveedorRFC);
+                    }}
                     onFileSelected={(file) => {
                       setSatFile(file);
                       startReconciliation(file, filtroProveedorRFC);
