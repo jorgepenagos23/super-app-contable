@@ -8,12 +8,19 @@ import {
   MetricasConciliacion,
 } from '@/types/reconciliation';
 
+/**
+ * Normaliza cadenas de texto para comparaciones insensibles a mayúsculas, minúsculas,
+ * acentos, espacios, guiones, puntos o caracteres especiales.
+ */
 export function normalizeText(text: string): string {
   if (!text) return '';
   return String(text)
+    .trim()
     .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Elimina acentos
     .replace(/S\.A\. DE C\.V\.|S\.A\.B\. DE C\.V\.|S\. DE R\.L\. DE C\.V\.|SA DE CV|SRL DE CV|S A DE C V/g, '')
-    .replace(/[^A-Z0-9]/g, '');
+    .replace(/[^A-Z0-9]/g, ''); // Deja únicamente caracteres alfanuméricos A-Z y 0-9
 }
 
 /**
@@ -79,9 +86,22 @@ export function normalizeERPData(rawInput: any): FacturaERP[] {
     if (!item || typeof item !== 'object') continue;
 
     // Extracción inteligente de UUID / XML
-    const rawXmlUuid = getPropInsensitive(item, [
-      'XML / UUID', 'XML/UUID', 'XML', 'UUID', 'uuid', 'FolioFiscal', 'FOLIO_FISCAL', 'CLAVE_SAT', 'CFDI_UUID', 'FOLIOFISCAL'
+    let rawXmlUuid = getPropInsensitive(item, [
+      'XML / UUID', 'XML/UUID', 'XML', 'UUID', 'uuid', 'FolioFiscal', 'FOLIO_FISCAL', 'CLAVE_SAT', 'CFDI_UUID', 'FOLIOFISCAL', 'XML_UUID'
     ]);
+
+    // Búsqueda de respaldo si no se encontró en llaves estándar
+    if (!rawXmlUuid) {
+      for (const val of Object.values(item)) {
+        if (typeof val === 'string') {
+          const cleanVal = normalizeText(val);
+          if (cleanVal.length >= 6 && cleanVal.length <= 36 && /^[A-Z0-9]+$/.test(cleanVal)) {
+            rawXmlUuid = val;
+            break;
+          }
+        }
+      }
+    }
 
     // Extracción de Folio y Remisión
     const refFactura = getPropInsensitive(item, [
@@ -152,6 +172,7 @@ export function normalizeERPData(rawInput: any): FacturaERP[] {
 
 /**
  * Motor de Conciliación Fiscal SAT vs ERP
+ * Soporta Amarre de UUID 3-3 (Primeros 3 + Últimos 3) insensibles a mayúsculas/minúsculas y formato.
  */
 export function reconcile(
   satData: FacturaSAT[],
@@ -174,6 +195,7 @@ export function reconcile(
     const satFolioClean = normalizeText(sat.folio || '');
     const satProveedorClean = normalizeText(sat.nombreEmisor);
 
+    // Extracción de los primeros 3 y últimos 3 del UUID del SAT
     const satFirst3 = satUuidClean.length >= 6 ? satUuidClean.slice(0, 3) : '';
     const satLast3 = satUuidClean.length >= 6 ? satUuidClean.slice(-3) : '';
     const satAbbrevCombined = `${satFirst3}${satLast3}`;
@@ -189,26 +211,38 @@ export function reconcile(
     let matchIdx = -1;
     let matchType = '';
 
-    // REGLA 1: FROG ERP 3-3 (Primeros 3 + Últimos 3)
-    if (satFirst3 && satLast3) {
+    // ========================================================
+    // REGLA 1: AMARRE UUID 3-3 (Primeros 3 + Últimos 3)
+    // Insensible a Mayúsculas/Minúsculas, puntos, guiones y espacios.
+    // ========================================================
+    if (satFirst3 && satLast3 && satFirst3.length === 3 && satLast3.length === 3) {
       for (let i = 0; i < erpList.length; i++) {
         if (erpVisited.has(i)) continue;
-        const erpUuidClean = (erpList[i] as any).cleanUuid;
-        if (!erpUuidClean || erpUuidClean.length < 6) continue;
+        const erpItem = erpList[i] as any;
+        const erpUuidClean = erpItem.cleanUuid || '';
 
-        if (
-          erpUuidClean === satAbbrevCombined ||
-          (erpUuidClean.startsWith(satFirst3) && erpUuidClean.endsWith(satLast3)) ||
-          (satUuidClean.startsWith(erpUuidClean.slice(0, 3)) && satUuidClean.endsWith(erpUuidClean.slice(-3)))
-        ) {
-          matchIdx = i;
-          matchType = `Amarre FROG ERP (${satFirst3}...${satLast3})`;
-          break;
+        if (erpUuidClean.length >= 6) {
+          const erpFirst3 = erpUuidClean.slice(0, 3);
+          const erpLast3 = erpUuidClean.slice(-3);
+
+          if (
+            (satFirst3 === erpFirst3 && satLast3 === erpLast3) ||
+            erpUuidClean === satAbbrevCombined ||
+            erpUuidClean === satUuidClean ||
+            satUuidClean.includes(erpUuidClean) ||
+            erpUuidClean.includes(satUuidClean)
+          ) {
+            matchIdx = i;
+            matchType = `Amarre FROG ERP 3-3 (${satFirst3}...${satLast3})`;
+            break;
+          }
         }
       }
     }
 
+    // ========================================================
     // REGLA 2: UUID COMPLETO
+    // ========================================================
     if (matchIdx === -1 && satUuidClean.length >= 6) {
       for (let i = 0; i < erpList.length; i++) {
         if (erpVisited.has(i)) continue;
@@ -223,7 +257,9 @@ export function reconcile(
       }
     }
 
+    // ========================================================
     // REGLA 3: REF. FACTURA / FOLIO
+    // ========================================================
     if (matchIdx === -1 && satFolioClean.length >= 3) {
       for (let i = 0; i < erpList.length; i++) {
         if (erpVisited.has(i)) continue;
@@ -240,7 +276,9 @@ export function reconcile(
       }
     }
 
+    // ========================================================
     // REGLA 4: PROVEEDOR + TOTAL EXACTO
+    // ========================================================
     if (matchIdx === -1 && satProveedorClean.length >= 3) {
       for (let i = 0; i < erpList.length; i++) {
         if (erpVisited.has(i)) continue;
@@ -258,7 +296,9 @@ export function reconcile(
       }
     }
 
-    // REGLA 5: TOTAL EXACTO
+    // ========================================================
+    // REGLA 5: TOTAL EXACTO ($0.05 Tolerancia)
+    // ========================================================
     if (matchIdx === -1 && sat.total > 0) {
       for (let i = 0; i < erpList.length; i++) {
         if (erpVisited.has(i)) continue;
@@ -326,7 +366,7 @@ export function reconcile(
     }
   }
 
-  // Ordenar de mayor a menor importe
+  // Ordenar de mayor a menor importe / diferencia
   faltantesERP.sort((a, b) => b.total - a.total);
   sobrantesERP.sort((a, b) => b.total - a.total);
   conciliadas.sort((a, b) => {
