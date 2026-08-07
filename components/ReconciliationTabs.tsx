@@ -82,14 +82,34 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
       render: (item: any) => <PaymentMethodBadge method={item.metodoPagoSAT} />,
       align: 'center' as const,
     },
-    { key: 'total', header: 'Total (SAT)', align: 'right' as const, sortable: true },
+    {
+      key: 'total',
+      header: 'Total (SAT)',
+      align: 'right' as const,
+      sortable: true,
+      render: (item: any) => (
+        <span className="font-black text-slate-900">
+          {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.total)}
+        </span>
+      ),
+    },
   ];
 
   const columnsSobrantes = [
     { key: 'proveedor', header: 'Proveedor (ERP)', sortable: true },
     { key: 'uuid', header: 'UUID / Ref (ERP)', sortable: true },
     { key: 'fecha', header: 'Fecha', sortable: true },
-    { key: 'total', header: 'Total (ERP)', align: 'right' as const, sortable: true },
+    {
+      key: 'total',
+      header: 'Total (ERP)',
+      align: 'right' as const,
+      sortable: true,
+      render: (item: any) => (
+        <span className="font-black text-amber-700">
+          {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.total)}
+        </span>
+      ),
+    },
   ];
 
   const columnsConciliadas = [
@@ -100,7 +120,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
       key: 'tipoCoincidencia',
       header: 'Criterio de Amarre',
       render: (item: any) => (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-normal bg-emerald-100 text-emerald-800 border border-emerald-200">
           <Sparkles className="w-3 h-3 text-emerald-600" />
           {item.tipoCoincidencia || 'Amarre por XML / UUID'}
         </span>
@@ -118,14 +138,34 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
       render: (item: any) => <PaymentMethodBadge method={item.metodoPagoSAT} />,
       align: 'center' as const,
     },
-    { key: 'totalSAT', header: 'Total SAT', align: 'right' as const, sortable: true },
-    { key: 'totalERP', header: 'Total ERP', align: 'right' as const, sortable: true },
+    {
+      key: 'totalSAT',
+      header: 'Total SAT',
+      align: 'right' as const,
+      sortable: true,
+      render: (item: any) => (
+        <span className="font-black text-slate-900">
+          {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.totalSAT)}
+        </span>
+      ),
+    },
+    {
+      key: 'totalERP',
+      header: 'Total ERP',
+      align: 'right' as const,
+      sortable: true,
+      render: (item: any) => (
+        <span className="font-black text-emerald-800">
+          {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.totalERP)}
+        </span>
+      ),
+    },
     {
       key: 'diferencia',
       header: 'Diferencia',
       align: 'right' as const,
       render: (item: any) => (
-        <span className={item.diferencia > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-bold'}>
+        <span className={item.diferencia > 0 ? 'text-amber-700 font-black' : 'text-slate-700 font-black'}>
           {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.diferencia)}
         </span>
       ),
@@ -138,18 +178,18 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
       {/* Header & Export Button */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <h3 className="text-lg font-normal text-slate-900 flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
             Resultados del Cruce Fiscal
           </h3>
-          <p className="text-xs text-slate-600 mt-1">
+          <p className="text-xs text-slate-500 mt-1 font-normal">
             Revisión amarrada por UUID, Folio y Razón Social. Utilice las pestañas para auditar faltantes, sobrantes y conciliadas.
           </p>
         </div>
 
         <button
           onClick={exportToExcel}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow transition-all active:scale-95 cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium shadow transition-all active:scale-95 cursor-pointer"
         >
           <Download className="w-4 h-4" />
           <span>Exportar Todo a Excel</span>
@@ -162,7 +202,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
         {/* Tab 1: Faltantes ERP */}
         <button
           onClick={() => setActiveTab('faltantes')}
-          className={`flex items-center gap-2 py-3 px-5 border-b-2 text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-5 border-b-2 text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'faltantes'
               ? 'border-rose-600 text-rose-700 bg-rose-50 rounded-t-lg'
               : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -170,7 +210,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
         >
           <AlertCircle className="w-4 h-4 text-rose-600" />
           <span>Faltantes en ERP (Peligro de Deducción)</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800 font-black border border-rose-300">
+          <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800 font-normal border border-rose-200">
             {faltantesERP.length}
           </span>
         </button>
@@ -178,7 +218,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
         {/* Tab 2: Sobrantes ERP */}
         <button
           onClick={() => setActiveTab('sobrantes')}
-          className={`flex items-center gap-2 py-3 px-5 border-b-2 text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-5 border-b-2 text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'sobrantes'
               ? 'border-amber-500 text-amber-800 bg-amber-50 rounded-t-lg'
               : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -186,7 +226,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
         >
           <AlertTriangle className="w-4 h-4 text-amber-600" />
           <span>Sobrantes en ERP (Discrepancia)</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-black border border-amber-300">
+          <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-normal border border-amber-200">
             {sobrantesERP.length}
           </span>
         </button>
@@ -194,7 +234,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
         {/* Tab 3: Conciliadas */}
         <button
           onClick={() => setActiveTab('conciliadas')}
-          className={`flex items-center gap-2 py-3 px-5 border-b-2 text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-5 border-b-2 text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'conciliadas'
               ? 'border-emerald-600 text-emerald-800 bg-emerald-50 rounded-t-lg'
               : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -202,7 +242,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
         >
           <CheckCircle className="w-4 h-4 text-emerald-600" />
           <span>Conciliadas Correctamente</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-black border border-emerald-300">
+          <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-normal border border-emerald-200">
             {conciliadas.length}
           </span>
         </button>

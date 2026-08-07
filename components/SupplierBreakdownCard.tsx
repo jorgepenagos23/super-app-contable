@@ -88,35 +88,38 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
         factura={selectedAuditInvoice}
       />
 
-      {/* Header Limpio Enfocado Exclusivamente en Compras Conciliadas SAT vs FROG */}
+      {/* Header Limpio */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <div>
-          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-300 flex items-center gap-1.5 w-fit">
+          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium border border-emerald-200 flex items-center gap-1.5 w-fit">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Compras Conciliadas SAT vs FROG ERP
           </span>
-          <h3 className="text-xl font-black text-slate-900 tracking-tight mt-1 flex items-center gap-2">
+          <h3 className="text-xl font-normal text-slate-900 tracking-tight mt-1 flex items-center gap-2">
             <Building2 className="w-5 h-5 text-emerald-600" />
             Conciliaciones Exitosas por Proveedor
           </h3>
-          <p className="text-xs text-slate-600 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5 font-normal">
             Muestra únicamente las facturas del SAT amarradas y conciliadas contra recepciones del ERP de Grupo MV.
           </p>
         </div>
 
         <div className="flex items-center gap-4 bg-emerald-50 px-4 py-2.5 rounded-2xl border border-emerald-200 shadow-xs flex-wrap sm:flex-nowrap">
           <div className="text-right border-b sm:border-b-0 sm:border-r border-emerald-200 pb-2 sm:pb-0 sm:pr-4">
-            <span className="text-[10px] uppercase font-extrabold text-emerald-800 block">Total Conciliado SAT</span>
+            <span className="text-[10px] uppercase font-normal text-emerald-800 block">Total Conciliado SAT</span>
+            {/* MONTO EN NEGRITA DESTACADA */}
             <span className="text-base font-black text-emerald-950">{formatCurrency(montoTotalConciliadas)}</span>
           </div>
 
           <div className="text-right border-b sm:border-b-0 sm:border-r border-emerald-200 pb-2 sm:pb-0 sm:pr-4">
-            <span className="text-[10px] uppercase font-extrabold text-teal-800 block">Total Conciliado FROG</span>
+            <span className="text-[10px] uppercase font-normal text-teal-800 block">Total Conciliado FROG</span>
+            {/* MONTO EN NEGRITA DESTACADA */}
             <span className="text-base font-black text-teal-950">{formatCurrency(montoTotalERPConciliadas)}</span>
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] uppercase font-extrabold text-slate-600 block">Diferencia Neta</span>
+            <span className="text-[10px] uppercase font-normal text-slate-600 block">Diferencia Neta</span>
+            {/* MONTO EN NEGRITA DESTACADA */}
             <span className={`text-base font-black ${diferenciaTotalConciliadas > 1 ? 'text-amber-700' : 'text-slate-800'}`}>
               {formatCurrency(diferenciaTotalConciliadas)}
             </span>
@@ -136,7 +139,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
               key={prov.rfcEmisor || index}
               className="border border-slate-200 rounded-2xl overflow-hidden transition-all bg-white hover:border-emerald-400 shadow-xs"
             >
-              {/* Fila del Proveedor Conciliado */}
+              {/* Fila del Proveedor */}
               <div
                 onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
                 className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/80 transition-all"
@@ -144,8 +147,8 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                 {/* Logo & Identificación */}
                 <div className="flex items-center gap-4 min-w-0 flex-1">
                   
-                  {/* Badge de Logotipo Prominente */}
-                  <div className="relative w-12 h-12 rounded-2xl bg-white text-slate-900 font-black text-sm flex items-center justify-center shrink-0 border border-slate-200 shadow-sm overflow-hidden p-1">
+                  {/* Badge de Logotipo */}
+                  <div className="relative w-12 h-12 rounded-2xl bg-white text-slate-900 font-medium text-sm flex items-center justify-center shrink-0 border border-slate-200 shadow-sm overflow-hidden p-1">
                     {logoUrl ? (
                       <img
                         src={logoUrl}
@@ -156,7 +159,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                         }}
                       />
                     ) : (
-                      <span className="text-slate-800 font-black">
+                      <span className="text-slate-700 font-medium">
                         {prov.nombreEmisor.slice(0, 2).toUpperCase()}
                       </span>
                     )}
@@ -164,10 +167,10 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-extrabold text-sm text-slate-900 truncate">
+                      <span className="font-medium text-sm text-slate-900 truncate">
                         {prov.nombreEmisor}
                       </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black bg-slate-100 text-slate-600 border border-slate-200 font-mono">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-normal bg-slate-100 text-slate-600 border border-slate-200 font-mono">
                         {prov.rfcEmisor || 'Sin RFC'}
                       </span>
                     </div>
@@ -179,7 +182,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                           style={{ width: `${Math.min(100, prov.porcentajeDelTotal)}%` }}
                         />
                       </div>
-                      <span className="text-[11px] font-bold text-slate-500">
+                      <span className="text-[11px] font-normal text-slate-500">
                         {prov.porcentajeDelTotal}% del total conciliado
                       </span>
                     </div>
@@ -191,32 +194,32 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                   
                   {/* Facturas Conciliadas */}
                   <div className="text-right">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Facturas</span>
-                    <span className="text-xs font-black text-slate-800 flex items-center gap-1 justify-end">
+                    <span className="text-[10px] font-normal text-slate-500 uppercase block">Facturas</span>
+                    <span className="text-xs font-medium text-slate-800 flex items-center gap-1 justify-end">
                       <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
                       {prov.facturasCount}
                     </span>
                   </div>
 
-                  {/* Total SAT Conciliado */}
+                  {/* Total SAT Conciliado (MONTO EN NEGRITA) */}
                   <div className="text-right min-w-[110px]">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Total SAT ($)</span>
+                    <span className="text-[10px] font-normal text-slate-500 uppercase block">Total SAT ($)</span>
                     <span className="text-xs font-black text-slate-900">
                       {formatCurrency(prov.montoTotalSAT)}
                     </span>
                   </div>
 
-                  {/* Total FROG ERP Conciliado */}
+                  {/* Total FROG ERP Conciliado (MONTO EN NEGRITA) */}
                   <div className="text-right min-w-[110px]">
-                    <span className="text-[10px] font-bold text-emerald-700 uppercase block">Total FROG ($)</span>
+                    <span className="text-[10px] font-normal text-emerald-700 uppercase block">Total FROG ($)</span>
                     <span className="text-xs font-black text-emerald-800">
                       {formatCurrency(prov.montoTotalERP)}
                     </span>
                   </div>
 
-                  {/* Diferencia */}
+                  {/* Diferencia (MONTO EN NEGRITA) */}
                   <div className="text-right min-w-[90px]">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Diferencia</span>
+                    <span className="text-[10px] font-normal text-slate-500 uppercase block">Diferencia</span>
                     <span className={`text-xs font-black ${prov.diferenciaTotal > 1 ? 'text-amber-600' : 'text-slate-600'}`}>
                       {formatCurrency(prov.diferenciaTotal)}
                     </span>
@@ -239,17 +242,17 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
               {isExpanded && (
                 <div className="bg-slate-50 p-4 border-t border-slate-200">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-black text-slate-800">
+                    <span className="text-xs font-medium text-slate-800">
                       Facturas conciliadas de {prov.nombreEmisor}:
                     </span>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                    <span className="text-[10px] font-normal text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
                       Haga clic en cualquier renglón para auditar la factura en FROG ERP
                     </span>
                   </div>
 
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left text-slate-700">
-                      <thead className="bg-slate-200 text-slate-800 font-extrabold uppercase text-[10px]">
+                      <thead className="bg-slate-200 text-slate-800 font-medium uppercase text-[10px]">
                         <tr>
                           <th className="px-3 py-2">Folio Fiscal (UUID)</th>
                           <th className="px-3 py-2">Fecha SAT</th>
@@ -265,13 +268,14 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                           <tr
                             key={fact.uuid || fIdx}
                             onClick={() => setSelectedAuditInvoice(fact)}
-                            className="hover:bg-slate-100/80 transition-colors cursor-pointer group"
+                            className="hover:bg-slate-100/80 transition-colors cursor-pointer group font-normal"
                           >
-                            <td className="px-3 py-2 font-mono text-[11px] font-bold text-slate-800">
+                            <td className="px-3 py-2 font-mono text-[11px] text-slate-800">
                               {fact.uuid}
                             </td>
                             <td className="px-3 py-2">{fact.fechaSAT || 'N/A'}</td>
-                            <td className="px-3 py-2 font-bold">{fact.metodoPagoSAT}</td>
+                            <td className="px-3 py-2">{fact.metodoPagoSAT}</td>
+                            {/* MONTOS EN NEGRITA EN LA TABLA */}
                             <td className="px-3 py-2 text-right font-black text-slate-900">
                               {formatCurrency(fact.totalSAT)}
                             </td>
