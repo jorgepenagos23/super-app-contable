@@ -5,7 +5,7 @@ import { ItemConciliado } from '@/types/reconciliation';
 import { InvoiceAuditModal } from './InvoiceAuditModal';
 import { useSupplierProfiles } from '@/hooks/useSupplierProfiles';
 import { getSupplierBrandLogo } from '@/lib/supplier-logos';
-import { Building2, ChevronDown, ChevronUp, FileCheck, Eye } from 'lucide-react';
+import { Building2, ChevronDown, ChevronUp, FileCheck, Eye, CheckCircle2 } from 'lucide-react';
 
 interface SupplierGroup {
   nombreEmisor: string;
@@ -21,7 +21,6 @@ interface SupplierGroup {
 interface SupplierBreakdownCardProps {
   conciliadas: ItemConciliado[];
   montoTotalConciliadas: number;
-  onOpenSupplierConfig?: (rfcOrNombre: string) => void;
 }
 
 export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
@@ -34,7 +33,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 
   if (!conciliadas || conciliadas.length === 0) return null;
 
-  // Agrupar facturas conciliadas por proveedor (RFC o Nombre)
+  // Agrupar ÚNICAMENTE facturas conciliadas vs FROG por proveedor
   const mapProveedores = new Map<string, SupplierGroup>();
 
   for (const item of conciliadas) {
@@ -86,30 +85,31 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
         factura={selectedAuditInvoice}
       />
 
-      {/* Header del Desglose por Proveedor */}
+      {/* Header Limpio Enfocado Exclusivamente en Compras Conciliadas SAT vs FROG */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <div>
-          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-300">
-            Resumen Ejecutivo Contable
+          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-300 flex items-center gap-1.5 w-fit">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            Compras Conciliadas SAT vs FROG ERP
           </span>
           <h3 className="text-xl font-black text-slate-900 tracking-tight mt-1 flex items-center gap-2">
             <Building2 className="w-5 h-5 text-emerald-600" />
-            Desglose por Proveedor y Marca ($ Pesos)
+            Conciliaciones Exitosas por Proveedor
           </h3>
           <p className="text-xs text-slate-600 mt-0.5">
-            Haga clic en cualquier renglón de proveedor para consultar el listado completo de facturas conciliadas.
+            Muestra únicamente las facturas del SAT amarradas y conciliadas contra recepciones del ERP de Grupo MV.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-200">
+        <div className="flex items-center gap-3 bg-emerald-50 px-4 py-2.5 rounded-2xl border border-emerald-200">
           <div className="text-right">
-            <span className="text-[10px] uppercase font-extrabold text-emerald-700 block">Total Conciliado</span>
+            <span className="text-[10px] uppercase font-extrabold text-emerald-700 block">Total Conciliado SAT</span>
             <span className="text-base font-black text-emerald-900">{formatCurrency(montoTotalConciliadas)}</span>
           </div>
         </div>
       </div>
 
-      {/* Lista de Proveedores con su Logotipo */}
+      {/* Lista de Proveedores Conciliados */}
       <div className="space-y-3">
         {proveedoresList.map((prov, index) => {
           const isExpanded = expandedSupplier === prov.rfcEmisor;
@@ -119,12 +119,12 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
           return (
             <div
               key={prov.rfcEmisor || index}
-              className="border border-slate-200 rounded-2xl overflow-hidden transition-all bg-white hover:border-emerald-300 shadow-xs"
+              className="border border-slate-200 rounded-2xl overflow-hidden transition-all bg-white hover:border-emerald-400 shadow-xs"
             >
-              {/* Fila del Proveedor con Logotipo Prominente */}
+              {/* Fila del Proveedor Conciliado */}
               <div
                 onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
-                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/70 transition-all"
+                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/80 transition-all"
               >
                 {/* Logo & Identificación */}
                 <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -137,7 +137,6 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                         alt={prov.nombreEmisor}
                         className="w-full h-full object-contain"
                         onError={(e) => {
-                          // Fallback si la imagen falla
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
@@ -166,26 +165,45 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                         />
                       </div>
                       <span className="text-[11px] font-bold text-slate-500">
-                        {prov.porcentajeDelTotal}% del total
+                        {prov.porcentajeDelTotal}% del total conciliado
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Métricas y Desplegable */}
-                <div className="flex items-center gap-4 justify-between sm:justify-end shrink-0">
+                {/* Métricas Exclusivas de Conciliación SAT vs FROG */}
+                <div className="flex items-center gap-6 justify-between sm:justify-end shrink-0">
+                  
+                  {/* Facturas Conciliadas */}
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-slate-400 uppercase block">Facturas</span>
-                    <span className="text-xs font-black text-slate-700 flex items-center gap-1 justify-end">
+                    <span className="text-xs font-black text-slate-800 flex items-center gap-1 justify-end">
                       <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
                       {prov.facturasCount}
                     </span>
                   </div>
 
-                  <div className="text-right min-w-[120px]">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Monto Total ($)</span>
-                    <span className="text-sm font-black text-emerald-800">
+                  {/* Total SAT Conciliado */}
+                  <div className="text-right min-w-[110px]">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Total SAT ($)</span>
+                    <span className="text-xs font-black text-slate-900">
                       {formatCurrency(prov.montoTotalSAT)}
+                    </span>
+                  </div>
+
+                  {/* Total FROG ERP Conciliado */}
+                  <div className="text-right min-w-[110px]">
+                    <span className="text-[10px] font-bold text-emerald-700 uppercase block">Total FROG ($)</span>
+                    <span className="text-xs font-black text-emerald-800">
+                      {formatCurrency(prov.montoTotalERP)}
+                    </span>
+                  </div>
+
+                  {/* Diferencia */}
+                  <div className="text-right min-w-[90px]">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Diferencia</span>
+                    <span className={`text-xs font-black ${prov.diferenciaTotal > 1 ? 'text-amber-600' : 'text-slate-600'}`}>
+                      {formatCurrency(prov.diferenciaTotal)}
                     </span>
                   </div>
 
@@ -202,15 +220,15 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                 </div>
               </div>
 
-              {/* Vista Desplegable de Facturas de este Proveedor */}
+              {/* Detalle de Facturas Conciliadas SAT vs FROG */}
               {isExpanded && (
                 <div className="bg-slate-50 p-4 border-t border-slate-200">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-black text-slate-800">
-                      Facturas individuales conciliadas de {prov.nombreEmisor}:
+                      Facturas conciliadas de {prov.nombreEmisor}:
                     </span>
                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
-                      Haga clic en cualquier renglón para abrir la Auditoría SAT vs FROG
+                      Haga clic en cualquier renglón para auditar la factura en FROG ERP
                     </span>
                   </div>
 
@@ -222,7 +240,8 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                           <th className="px-3 py-2">Fecha SAT</th>
                           <th className="px-3 py-2">Método</th>
                           <th className="px-3 py-2 text-right">Total SAT</th>
-                          <th className="px-3 py-2 text-right">Total ERP</th>
+                          <th className="px-3 py-2 text-right">Total FROG</th>
+                          <th className="px-3 py-2 text-right">Diferencia</th>
                           <th className="px-3 py-2 text-center">Auditar</th>
                         </tr>
                       </thead>
@@ -243,6 +262,9 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                             </td>
                             <td className="px-3 py-2 text-right font-black text-emerald-800">
                               {formatCurrency(fact.totalERP)}
+                            </td>
+                            <td className="px-3 py-2 text-right font-black text-slate-700">
+                              {formatCurrency(fact.diferencia)}
                             </td>
                             <td className="px-3 py-2 text-center">
                               <button
