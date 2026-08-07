@@ -26,7 +26,7 @@ export function useReconciliation() {
   const [is401Error, setIs401Error] = useState(false);
   const [lastFetchInfo, setLastFetchInfo] = useState<string | null>(null);
 
-  // Rango de fechas por defecto: Enero 2026 (20260101 a 20260131)
+  // Rango de fechas por defecto: Enero 2026 (2026-01-01 a 2026-01-31)
   const [fechaInicial, setFechaInicial] = useState<string>('2026-01-01');
   const [fechaFinal, setFechaFinal] = useState<string>('2026-01-31');
   const [apiToken, setApiToken] = useState<string>('');
@@ -52,19 +52,70 @@ export function useReconciliation() {
     return f;
   };
 
-  // Extraer lista única de proveedores disponibles en el archivo cargado
+  // Auto-carga inicial de Compras y Proveedores Principales del Endpoint ERP (FROG API) al montar la app
+  useEffect(() => {
+    const fetchInitialERP = async () => {
+      try {
+        setIsLoading(true);
+        const payload = {
+          fechaInicial: toYYYYMMDD(fechaInicial),
+          fechaFinal: toYYYYMMDD(fechaFinal),
+        };
+
+        const response = await fetch('/api/compras/paral', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          const json = await response.json();
+          const rawItems = json.data ? (Array.isArray(json.data) ? json.data : (json.data.data || [])) : [];
+          const normalized = normalizeERPData(rawItems);
+          setErpData(normalized);
+          setLastFetchInfo(`API ERP Conectado: ${normalized.length} compras cargadas automáticamente.`);
+        }
+      } catch (err) {
+        console.warn('Auto-carga inicial ERP (Reintentar si requiere auth):', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialERP();
+  }, []);
+
+  // Extraer lista única de proveedores disponibles TANTO en el ERP (FROG API) COMO en el SAT (Excel)
   const availableSuppliers = useMemo(() => {
     const map = new Map<string, SupplierOption>();
 
+    // 1. Extraer proveedores devueltos por la API de FROG ERP
+    for (const erp of erpData) {
+      const key = (erp.rfc || erp.proveedor).toUpperCase().trim();
+      if (!key) continue;
+      const existing = map.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        map.set(key, {
+          nombre: erp.proveedor,
+          rfc: erp.rfc || '',
+          count: 1,
+        });
+      }
+    }
+
+    // 2. Extraer proveedores del archivo Excel cargado del SAT
     for (const sat of satData) {
-      const key = sat.rfcEmisor || sat.nombreEmisor;
+      const key = (sat.rfcEmisor || sat.nombreEmisor).toUpperCase().trim();
+      if (!key) continue;
       const existing = map.get(key);
       if (existing) {
         existing.count += 1;
       } else {
         map.set(key, {
           nombre: sat.nombreEmisor,
-          rfc: sat.rfcEmisor,
+          rfc: sat.rfcEmisor || '',
           count: 1,
         });
       }
@@ -73,21 +124,16 @@ export function useReconciliation() {
     const list = Array.from(map.values());
     list.sort((a, b) => b.count - a.count);
     return list;
-  }, [satData]);
+  }, [erpData, satData]);
 
   // Función Principal: Ejecuta la consulta y conciliación
   const startReconciliation = async (customFile?: File, targetSupplierFilter?: string) => {
     const fileToProcess = customFile || satFile;
-    if (!fileToProcess && !isDemoMode) {
-      setFileError('Por favor seleccione primero su archivo Excel del SAT antes de conciliar.');
-      return;
-    }
 
     setIsLoading(true);
     setFileError(null);
     setErpError(null);
     setIs401Error(false);
-    setResultado(null);
 
     const startStr = fechaInicial;
     const endStr = fechaFinal;
@@ -95,8 +141,8 @@ export function useReconciliation() {
     const pFechaFinal = toYYYYMMDD(endStr);
 
     try {
-      // 1. Leer y parsear el archivo del SAT
-      let parsedSat: FacturaSAT[] = [];
+      // 1. Leer y parsear el archivo del SAT si existe
+      let parsedSat: FacturaSAT[] = satData;
       if (fileToProcess) {
         const parseResult = await parseExcelSAT(fileToProcess);
         parsedSat = parseResult.facturas;
@@ -107,12 +153,10 @@ export function useReconciliation() {
           setFechaInicial(parseResult.detectedMinDate);
           setFechaFinal(parseResult.detectedMaxDate);
         }
-      } else {
-        parsedSat = satData;
       }
 
-      // 2. Realizar la consulta a la API del ERP
-      let currentErpList: FacturaERP[] = [];
+      // 2. Realizar la consulta a la API del ERP o usar datos precargados
+      let currentErpList: FacturaERP[] = erpData;
 
       if (isDemoMode) {
         currentErpList = MOCK_ERP_PURCHASES;
@@ -179,7 +223,7 @@ export function useReconciliation() {
         );
       }
 
-      // 4. Ejecutar la conciliación
+      // 4. Ejecutar la conciliación si hay datos de SAT o ERP
       const resultadoConciliado = reconcile(filteredSat, filteredErp);
       setResultado(resultadoConciliado);
 
@@ -203,7 +247,6 @@ export function useReconciliation() {
   const resetAll = () => {
     setSatFile(null);
     setSatData([]);
-    setErpData([]);
     setFileName('');
     setResultado(null);
     setFileError(null);
