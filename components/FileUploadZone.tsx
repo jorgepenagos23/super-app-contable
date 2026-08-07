@@ -59,19 +59,19 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
       />
 
       {fileName ? (
-        /* Estado: Archivo Cargado (Compacto Apple Style) */
-        <div className="flex items-center justify-between p-3 bg-emerald-50/80 border border-emerald-300 rounded-2xl shadow-xs backdrop-blur-xs">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-              <FileSpreadsheet className="w-4 h-4" />
+        /* Estado: Archivo Cargado (Minimalista Apple Style) */
+        <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
+              <FileSpreadsheet className="w-3.5 h-3.5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xs text-slate-900 truncate">
+                <span className="font-medium text-xs text-slate-900 truncate">
                   {fileName}
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-200 text-emerald-800 border border-emerald-300">
-                  <CheckCircle2 className="w-3 h-3 inline mr-1" />
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-normal bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  <CheckCircle2 className="w-3 h-3 inline mr-1 text-emerald-600" />
                   {totalParsedRows > 0 ? `${totalParsedRows} facturas` : 'Listo'}
                 </span>
               </div>
@@ -83,36 +83,33 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
               if (onClearFile) onClearFile();
               if (fileInputRef.current) fileInputRef.current.value = '';
             }}
-            className="p-1.5 rounded-xl hover:bg-emerald-200 text-emerald-800 transition-all cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
             title="Cambiar archivo"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       ) : (
-        /* Estado: Cargar Archivo (Minimalista Tipo Apple) */
+        /* Estado: Cargar Archivo (Sleek Apple Style) */
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center justify-between p-3 bg-white border border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl cursor-pointer hover:bg-slate-50 transition-all shadow-xs group"
+          className="flex items-center justify-between p-2.5 bg-white border border-slate-200 hover:border-emerald-500 rounded-xl cursor-pointer hover:bg-slate-50/80 transition-all shadow-2xs group"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-emerald-100 text-slate-600 group-hover:text-emerald-700 flex items-center justify-center transition-all border border-slate-200">
-              <Upload className="w-4 h-4" />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-emerald-100 text-slate-600 group-hover:text-emerald-700 flex items-center justify-center transition-colors border border-slate-200 shrink-0">
+              <Upload className="w-3.5 h-3.5" />
             </div>
-            <div>
-              <span className="text-xs font-extrabold text-slate-800 group-hover:text-emerald-700 transition-all block">
-                Cargar Excel o CSV del SAT
-              </span>
-              <span className="text-[10px] font-medium text-slate-600">
-                Arrastre o seleccione su archivo aquí
+            <div className="min-w-0">
+              <span className="text-xs font-medium text-slate-800 group-hover:text-emerald-700 transition-colors block truncate">
+                Cargar auxiliares SAT (.xlsx / .csv)
               </span>
             </div>
           </div>
 
-          <span className="px-3 py-1 rounded-xl bg-slate-100 group-hover:bg-emerald-600 text-slate-700 group-hover:text-white font-black text-xs border border-slate-300 group-hover:border-emerald-600 transition-all">
-            Seleccionar
+          <span className="px-3 py-1 rounded-lg bg-slate-900 group-hover:bg-emerald-600 text-white font-medium text-xs transition-colors shrink-0">
+            Examinar
           </span>
         </div>
       )}

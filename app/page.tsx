@@ -231,27 +231,22 @@ export default function Home() {
                       handleStartReconciliation();
                     }}
                     disabled={!isFileReady || isLoading}
-                    className={`w-full h-14 font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 border ${
+                    className={`w-full py-2.5 px-4 font-medium text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 border ${
                       isFileReady
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer active:scale-[0.98]'
-                        : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75'
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer active:scale-[0.98] border-emerald-600'
+                        : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
                     }`}
                     title={isFileReady ? 'Ejecutar Conciliación SAT vs ERP' : 'Cargue primero un archivo Excel del SAT'}
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
                         <span>Procesando...</span>
-                      </>
-                    ) : isFileReady ? (
-                      <>
-                        <Zap className="w-4 h-4 fill-white" />
-                        <span>Ejecutar Conciliación</span>
                       </>
                     ) : (
                       <>
-                        <ShieldAlert className="w-4 h-4 text-slate-500" />
-                        <span>Cargue Excel para Conciliar</span>
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>Ejecutar Conciliación</span>
                       </>
                     )}
                   </button>
