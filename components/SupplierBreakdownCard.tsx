@@ -119,8 +119,8 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 
           <div className="text-right">
             <span className="text-[10px] uppercase font-normal text-slate-600 block">Diferencia Neta</span>
-            {/* MONTO EN NEGRITA DESTACADA */}
-            <span className={`text-base font-black ${diferenciaTotalConciliadas > 1 ? 'text-amber-700' : 'text-slate-800'}`}>
+            {/* MONTO CON DIFERENCIA EN ROJO SI ES MAYOR A 0 */}
+            <span className={`text-base font-black ${diferenciaTotalConciliadas > 0.01 ? 'text-rose-600' : 'text-slate-800'}`}>
               {formatCurrency(diferenciaTotalConciliadas)}
             </span>
           </div>
@@ -217,10 +217,10 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                     </span>
                   </div>
 
-                  {/* Diferencia (MONTO EN NEGRITA) */}
+                  {/* Diferencia (EN ROJO SI ES MAYOR A 0) */}
                   <div className="text-right min-w-[90px]">
                     <span className="text-[10px] font-normal text-slate-500 uppercase block">Diferencia</span>
-                    <span className={`text-xs font-black ${prov.diferenciaTotal > 1 ? 'text-amber-600' : 'text-slate-600'}`}>
+                    <span className={`text-xs font-black ${prov.diferenciaTotal > 0.01 ? 'text-rose-600' : 'text-slate-600'}`}>
                       {formatCurrency(prov.diferenciaTotal)}
                     </span>
                   </div>
@@ -282,7 +282,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                             <td className="px-3 py-2 text-right font-black text-emerald-800">
                               {formatCurrency(fact.totalERP)}
                             </td>
-                            <td className="px-3 py-2 text-right font-black text-slate-700">
+                            <td className={`px-3 py-2 text-right font-black ${fact.diferencia > 0.01 ? 'text-rose-600' : 'text-slate-700'}`}>
                               {formatCurrency(fact.diferencia)}
                             </td>
                             <td className="px-3 py-2 text-center">
