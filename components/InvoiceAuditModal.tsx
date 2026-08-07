@@ -171,11 +171,13 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
             {/* LADO SAT */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-emerald-600" />
-                  Reporte Fiscal SAT (XML)
-                </span>
-                <span className="text-[10px] font-bold text-slate-500">Documento Oficial</span>
+                <div className="flex items-center gap-2">
+                  <img src="/logos/sat.svg" alt="SAT" className="h-6 object-contain" />
+                  <span className="text-xs font-medium text-slate-800 uppercase tracking-wider">
+                    Reporte Fiscal SAT (XML)
+                  </span>
+                </div>
+                <span className="text-[10px] font-normal text-slate-500">Documento Oficial</span>
               </div>
 
               <div>
@@ -209,11 +211,13 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
             {/* LADO FROG ERP */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <Building className="w-4 h-4 text-emerald-600" />
-                  Sistema ERP FROG (Grupo MV)
-                </span>
-                <span className="text-[10px] font-bold text-slate-500">UDN: {udn}</span>
+                <div className="flex items-center gap-2">
+                  <img src="/logos/frog.svg" alt="FROG ERP" className="h-6 object-contain" />
+                  <span className="text-xs font-medium text-slate-800 uppercase tracking-wider">
+                    Sistema ERP FROG (Grupo MV)
+                  </span>
+                </div>
+                <span className="text-[10px] font-normal text-slate-500">UDN: {udn}</span>
               </div>
 
               <div>

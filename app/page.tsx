@@ -159,6 +159,19 @@ export default function Home() {
             {/* Control Panel Minimalista */}
             <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-xs flex flex-col gap-3">
 
+              {/* Encabezado con Logos de SAT y FROG ERP */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-1 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <img src="/logos/sat.svg" alt="SAT México" className="h-8 object-contain drop-shadow-xs" />
+                  <span className="text-slate-400 font-medium text-xs">VS</span>
+                  <img src="/logos/frog.svg" alt="FROG ERP Grupo MV" className="h-8 object-contain drop-shadow-xs" />
+                </div>
+
+                <span className="text-xs text-slate-500 font-normal">
+                  Conciliación Automatizada de Compras
+                </span>
+              </div>
+
               {/* Grid Principal: 1. Cargar Archivo, 2. Rango Fechas, 3. UNICO BOTÓN CONCILIAR */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200">
                 
