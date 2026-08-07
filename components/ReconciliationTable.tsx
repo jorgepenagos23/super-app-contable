@@ -96,7 +96,7 @@ export function ReconciliationTable<T extends Record<string, any>>({
   const handleRowSelect = (item: T) => {
     if (onRowClick) {
       onRowClick(item);
-    } else if (item.uuid && (item.totalSAT !== undefined || item.totalERP !== undefined)) {
+    } else {
       setSelectedAuditInvoice(item as any);
     }
   };

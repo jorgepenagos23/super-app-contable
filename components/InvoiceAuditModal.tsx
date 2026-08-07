@@ -36,9 +36,9 @@ export const InvoiceAuditModal: React.FC<InvoiceAuditModalProps> = ({
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val || 0);
 
-  const totalSAT = factura.totalSAT;
-  const totalERP = factura.totalERP;
-  const diferencia = Number(Math.abs(totalSAT - totalERP).toFixed(2));
+  const totalSAT = factura.totalSAT !== undefined ? factura.totalSAT : (factura.total && !factura.proveedor ? factura.total : 0);
+  const totalERP = factura.totalERP !== undefined ? factura.totalERP : (factura.total && (factura.proveedor || factura.documento) ? factura.total : 0);
+  const diferencia = Number(Math.abs((totalSAT || 0) - (totalERP || 0)).toFixed(2));
   
   // Lógica del Semáforo de Diferencias
   const esExacto = diferencia === 0;
