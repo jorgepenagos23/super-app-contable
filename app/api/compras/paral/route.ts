@@ -14,9 +14,9 @@ export async function GET(request: NextRequest) {
 async function handleProxyRequest(request: NextRequest) {
   const targetUrl = 'https://grupomv.frog.mx:9011/sp/REPORTES_API/Lista_Compras_773';
 
-  // 1. Obtener parámetros de fechas del body de la solicitud o query params (Default: 20240101 a 20240131)
-  let fechaInicial = '20240101';
-  let fechaFinal = '20240131';
+  // 1. Obtener parámetros de fechas del body de la solicitud o query params (Default: 20260101 a 20260131)
+  let fechaInicial = '20260101';
+  let fechaFinal = '20260131';
 
   try {
     if (request.method === 'POST') {
