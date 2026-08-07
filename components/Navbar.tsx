@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Building2, RefreshCw, LayoutGrid, ArrowLeft } from 'lucide-react';
+import { RefreshCw, LayoutGrid } from 'lucide-react';
 import { UserMenu } from './UserMenu';
 import { useAuth } from '@/context/AuthContext';
 import { ModuleId } from './AccountantHub';
@@ -45,42 +45,47 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 text-slate-900 shadow-xs">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 text-slate-900 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* Logo & Branding */}
+        {/* Logo de la Empresa & Branding */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNavigateModule && onNavigateModule('hub')}
-            className="p-2 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-xl shadow-md text-white font-bold hover:scale-105 transition-transform cursor-pointer"
+            className="flex items-center gap-2 transition-transform hover:scale-[1.02] cursor-pointer"
             title="Ir al Menú Principal del Contador"
           >
-            <Building2 className="w-6 h-6 text-white" />
+            {/* Logo Oficial de la Empresa Grupo MV */}
+            <img
+              src="/logos/grupomv.png"
+              alt="Grupo MV Logo"
+              className="h-10 w-auto object-contain rounded-lg"
+            />
           </button>
           
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-widest text-emerald-700">Grupo MV</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-semibold">
+              <span className="text-xs font-medium uppercase tracking-widest text-emerald-700">Grupo MV</span>
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-normal">
                 Super App Contable
               </span>
             </div>
-            <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 truncate max-w-[280px] sm:max-w-md">
+            <h1 className="text-sm sm:text-base font-normal tracking-tight text-slate-800 truncate max-w-[200px] sm:max-w-md">
               {getModuleTitle()}
             </h1>
           </div>
         </div>
 
-        {/* Right Section: Navigation Hub, API Status, Sync ERP & User Menu */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right Section: Navigation Hub, Status ERP & User Menu */}
+        <div className="flex items-center gap-2 sm:gap-3 font-normal">
           
           {/* Botón Menú Principal / Módulos */}
           {onNavigateModule && (
             <button
               onClick={() => onNavigateModule('hub')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
                 activeModule === 'hub'
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
                   : 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100'
               }`}
               title="Volver al Centro de Control de Módulos"
@@ -90,10 +95,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          <div className="hidden lg:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
+          <div className="hidden lg:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-normal">
             <div className={`w-2.5 h-2.5 rounded-full ${erpConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-            <span className="text-slate-600 font-medium">ERP Grupo MV:</span>
-            <span className="font-bold text-slate-900">
+            <span className="text-slate-600 font-normal">ERP Grupo MV:</span>
+            <span className="font-medium text-slate-900">
               {isLoadingERP ? 'Cargando...' : `${erpCount} compras`}
             </span>
           </div>
@@ -102,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onRefreshERP}
               disabled={isLoadingERP}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-all shadow-2xs disabled:opacity-50 active:scale-95 cursor-pointer"
               title="Actualizar información de compras del ERP"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoadingERP ? 'animate-spin' : ''}`} />
