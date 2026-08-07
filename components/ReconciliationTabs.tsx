@@ -5,7 +5,7 @@ import { ResultadoConciliacion } from '@/types/reconciliation';
 import { ReconciliationTable } from './ReconciliationTable';
 import { StatusBadge } from './StatusBadge';
 import { PaymentMethodBadge } from './PaymentMethodBadge';
-import { AlertCircle, AlertTriangle, CheckCircle, Download, FileSpreadsheet, Sparkles } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle, Download, FileSpreadsheet, Sparkles, XCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface ReconciliationTabsProps {
@@ -28,39 +28,16 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
         'Nombre Emisor': item.nombreEmisor,
         'Folio Fiscal (UUID)': item.uuid,
         'Estatus SAT': item.estatusSAT,
-        'Método Pago': item.metodoPagoSAT,
-        'Fecha': item.fecha,
-        'Total SAT': item.total,
+        'Método Pago SAT': item.metodoPagoSAT,
+        'Total SAT ($)': item.total,
+        'Estado FROG ERP': 'No Encontrado',
       }))
     );
-    XLSX.utils.book_append_sheet(wb, wsFaltantes, 'Faltantes en ERP (Riesgo)');
+    const wsSobrantes = XLSX.utils.json_to_sheet(sobrantesERP);
+    const wsConciliadas = XLSX.utils.json_to_sheet(conciliadas);
 
-    const wsSobrantes = XLSX.utils.json_to_sheet(
-      sobrantesERP.map((item) => ({
-        'Proveedor': item.proveedor,
-        'RFC': item.rfc || 'N/A',
-        'Folio Fiscal (UUID)': item.uuid,
-        'Fecha': item.fecha,
-        'Documento': item.documento || '',
-        'Total ERP': item.total,
-      }))
-    );
+    XLSX.utils.book_append_sheet(wb, wsFaltantes, 'Faltantes en ERP');
     XLSX.utils.book_append_sheet(wb, wsSobrantes, 'Sobrantes en ERP');
-
-    const wsConciliadas = XLSX.utils.json_to_sheet(
-      conciliadas.map((item: any) => ({
-        'RFC Emisor': item.rfcEmisor,
-        'Nombre Emisor': item.nombreEmisor,
-        'Folio Fiscal (UUID)': item.uuid,
-        'Tipo de Amarre': item.tipoCoincidencia || 'Amarre por XML / UUID',
-        'Estatus SAT': item.estatusSAT,
-        'Método Pago': item.metodoPagoSAT,
-        'Fecha SAT': item.fechaSAT,
-        'Total SAT': item.totalSAT,
-        'Total ERP': item.totalERP,
-        'Diferencia': item.diferencia,
-      }))
-    );
     XLSX.utils.book_append_sheet(wb, wsConciliadas, 'Conciliadas');
 
     XLSX.writeFile(wb, `Conciliacion_Fiscal_PARAL_vs_SAT_${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -85,12 +62,23 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
     },
     {
       key: 'total',
-      header: 'Total (SAT)',
+      header: 'Total SAT',
       align: 'right' as const,
       sortable: true,
       render: (item: any) => (
         <span className="font-black text-slate-900">
           {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.total)}
+        </span>
+      ),
+    },
+    {
+      key: 'estatusERP',
+      header: 'FROG ERP',
+      align: 'center' as const,
+      render: () => (
+        <span className="px-2.5 py-1 rounded-lg text-[11px] font-normal bg-slate-100/90 text-slate-500 border border-slate-200/80 shadow-2xs opacity-80 flex items-center gap-1 justify-center w-fit mx-auto">
+          <XCircle className="w-3.5 h-3.5 text-slate-400" />
+          <span>No Encontrado</span>
         </span>
       ),
     },
