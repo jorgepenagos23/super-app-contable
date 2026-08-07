@@ -72,6 +72,9 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
 
   proveedoresList.sort((a, b) => b.montoTotalSAT - a.montoTotalSAT);
 
+  const montoTotalERPConciliadas = conciliadas.reduce((acc, i) => acc + i.totalERP, 0);
+  const diferenciaTotalConciliadas = Math.abs(montoTotalConciliadas - montoTotalERPConciliadas);
+
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val);
 
@@ -101,10 +104,22 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-emerald-50 px-4 py-2.5 rounded-2xl border border-emerald-200">
+        <div className="flex items-center gap-4 bg-emerald-50 px-4 py-2.5 rounded-2xl border border-emerald-200 shadow-xs flex-wrap sm:flex-nowrap">
+          <div className="text-right border-b sm:border-b-0 sm:border-r border-emerald-200 pb-2 sm:pb-0 sm:pr-4">
+            <span className="text-[10px] uppercase font-extrabold text-emerald-800 block">Total Conciliado SAT</span>
+            <span className="text-base font-black text-emerald-950">{formatCurrency(montoTotalConciliadas)}</span>
+          </div>
+
+          <div className="text-right border-b sm:border-b-0 sm:border-r border-emerald-200 pb-2 sm:pb-0 sm:pr-4">
+            <span className="text-[10px] uppercase font-extrabold text-teal-800 block">Total Conciliado FROG</span>
+            <span className="text-base font-black text-teal-950">{formatCurrency(montoTotalERPConciliadas)}</span>
+          </div>
+
           <div className="text-right">
-            <span className="text-[10px] uppercase font-extrabold text-emerald-700 block">Total Conciliado SAT</span>
-            <span className="text-base font-black text-emerald-900">{formatCurrency(montoTotalConciliadas)}</span>
+            <span className="text-[10px] uppercase font-extrabold text-slate-600 block">Diferencia Neta</span>
+            <span className={`text-base font-black ${diferenciaTotalConciliadas > 1 ? 'text-amber-700' : 'text-slate-800'}`}>
+              {formatCurrency(diferenciaTotalConciliadas)}
+            </span>
           </div>
         </div>
       </div>
