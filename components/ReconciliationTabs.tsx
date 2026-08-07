@@ -165,7 +165,7 @@ export const ReconciliationTabs: React.FC<ReconciliationTabsProps> = ({ resultad
       header: 'Diferencia',
       align: 'right' as const,
       render: (item: any) => (
-        <span className={item.diferencia > 0.01 ? 'text-rose-600 font-black' : 'text-slate-700 font-black'}>
+        <span className={item.diferencia > 1.00 ? 'text-rose-600 font-black' : 'text-slate-700 font-black'}>
           {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.diferencia)}
         </span>
       ),
