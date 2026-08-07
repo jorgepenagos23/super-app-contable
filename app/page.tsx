@@ -249,17 +249,14 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Banner Informativo de Estado "POR CONCILIAR" (Sin botones duplicados) */}
+              {/* Banner Informativo Conciso "Por Conciliar" */}
               {isFileReady && !resultado && !isLoading && (
-                <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 flex items-center gap-3 text-amber-900 shadow-xs">
-                  <div className="w-3 h-3 rounded-full bg-amber-500 animate-ping shrink-0" />
-                  <div>
-                    <span className="text-xs font-black uppercase tracking-wider text-amber-800 block">
-                      ESTADO: POR CONCILIAR
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between text-xs text-emerald-900 shadow-xs font-bold">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                    <span>
+                      📄 <strong>{fileName}</strong> ({satData.length.toLocaleString('es-MX')} facturas) — <span className="text-emerald-700">Listo para conciliar</span>
                     </span>
-                    <p className="text-xs font-semibold text-amber-900 mt-0.5">
-                      Archivo <strong>"{fileName}"</strong> ({satData.length} facturas detectadas). Presione el botón verde <strong>"⚡ Ejecutar Conciliación"</strong> para iniciar.
-                    </p>
                   </div>
                 </div>
               )}
