@@ -9,17 +9,15 @@ import {
   Wrench,
   Search,
   ArrowRight,
-  Sparkles,
   CheckCircle2,
-  Clock,
-  TrendingUp,
-  AlertTriangle,
-  FileCheck,
-  Zap,
-  BookOpen,
-  Filter
+  Info,
+  Building,
+  Sliders,
+  Scale,
+  Database
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { ModuleDetailsModal, ModuleDetailItem } from './ModuleDetailsModal';
 
 export type ModuleId = 'hub' | 'conciliacion' | 'auditoria_sat' | 'impuestos' | 'proveedores' | 'utilidades';
 
@@ -39,106 +37,177 @@ export const AccountantHub: React.FC<AccountantHubProps> = ({
   const { currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('todos');
+  const [selectedDetailModal, setSelectedDetailModal] = useState<ModuleDetailItem | null>(null);
 
-  const modules = [
+  const modulesData: (ModuleDetailItem & {
+    category: string;
+    icon: any;
+    stats: string;
+    features: string[];
+  })[] = [
     {
-      id: 'conciliacion' as ModuleId,
+      id: 'conciliacion',
       category: 'conciliacion',
-      title: 'Conciliación Compras PARAL vs SAT',
-      subtitle: 'Cruces automatizados de auxiliares Excel vs ERP Grupo MV',
-      description: 'Carga masiva de facturas en Excel/XML, comparación instantánea por UUID, monto, impuesto y RFC. Identificación de facturas faltantes en ERP o canceladas en el SAT.',
+      title: 'Conciliación Compras PARAL vs. SAT',
+      subtitle: 'Auditoría y Cruce Automatizado de Facturación ERP',
+      description: 'Herramienta institucional para el cotejo masivo de auxiliares de compras (Excel/XML) contra los registros ERP de Grupo MV y la base de datos fiscal.',
+      badge: '🟢 Operativo / Producción',
+      normativa: 'Art. 28 CFF (Contabilidad Fiscal) & Anexo 20 del SAT',
       icon: FileSpreadsheet,
-      badge: '🟢 Producción',
-      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-      gradient: 'from-emerald-600 to-teal-500',
-      stats: `${erpCount} facturas en ERP • ${suppliersCount} proveedores`,
-      features: [
-        'Carga de auxiliar de compras Excel/XML',
-        'Sincronización directa con API ERP Grupo MV',
-        'Filtros dinámicos por Proveedor y Folio',
-        'Exportación de informes ejecutivos en Excel'
+      stats: `${erpCount} compras ERP • ${suppliersCount} proveedores`,
+      entradas: [
+        'Archivos auxiliares de compras (.xlsx / .csv)',
+        'Conexión API REST ERP Grupo MV',
+        'Rango de fechas y filtros por RFC'
       ],
-      primaryAction: 'Iniciar Conciliación'
+      salidas: [
+        'Matriz de facturas conciliadas vs. faltantes',
+        'Reporte de discrepancias de importes e IVA',
+        'Exportable ejecutivo a Excel con fórmulas'
+      ],
+      funcionesClave: [
+        'Cruce automático por Folio Fiscal / UUID',
+        'Tolerancia configurable de centavos',
+        'Emparejamiento masivo por RFC y Monto',
+        'Auditoría visual con resumen por proveedor'
+      ],
+      features: [
+        'Cruce masivo por UUID, RFC y Monto',
+        'Sincronización directa API Grupo MV',
+        'Auditoría de facturas faltantes y canceladas'
+      ]
     },
     {
-      id: 'auditoria_sat' as ModuleId,
+      id: 'auditoria_sat',
       category: 'fiscal',
       title: 'Auditoría CFDI & Validador EFOS 69-B',
-      subtitle: 'Inspección de facturas y listas negras del SAT',
-      description: 'Verificación masiva de estado de comprobantes (Vigente / Cancelado), validación de folios fiscales UUID y consulta preventiva de proveedores en listas negras del Art. 69-B del CFF.',
+      subtitle: 'Monitoreo de Estado SAT y Prevención de Riesgo Fiscal',
+      description: 'Módulo de verificación institucional para comprobar la validez de comprobantes fiscales y consultar preventivamente listas de empresas con operaciones simuladas.',
+      badge: '🛡️ Verificación Fiscal',
+      normativa: 'Art. 69-B CFF (EFOS / EDOS) & WebService SAT',
       icon: ShieldCheck,
-      badge: '🛡️ Fiscal',
-      badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-      gradient: 'from-blue-600 to-indigo-600',
-      stats: 'Validación SAT 100% activa',
-      features: [
-        'Buscador y validador de UUIDs',
-        'Inspección de lista EFOS (Empresas Facturadoras de Operaciones Simuladas)',
-        'Validador de estructura XML CFDI 4.0',
-        'Alertas preventivas de riesgo fiscal'
+      stats: 'Validación SAT activa',
+      entradas: [
+        'Folio Fiscal UUID de la factura',
+        'RFC de proveedores contratados',
+        'Estructura XML de CFDI 4.0'
       ],
-      primaryAction: 'Abrir Auditoría SAT'
+      salidas: [
+        'Dictamen de estatus SAT (Vigente / Cancelado)',
+        'Certificado de no coincidencia en 69-B',
+        'Registro de trazabilidad para auditoría'
+      ],
+      funcionesClave: [
+        'Consulta directa a base de datos EFOS',
+        'Validación de vigencia de folios fiscales',
+        'Verificación de sello digital y PAC',
+        'Alertas de prevención ante revisiones del SAT'
+      ],
+      features: [
+        'Buscador y validador oficial de UUIDs',
+        'Monitoreo preventiva de lista negra EFOS 69-B',
+        'Dictamen de estatus de comprobante'
+      ]
     },
     {
-      id: 'impuestos' as ModuleId,
+      id: 'impuestos',
       category: 'impuestos',
       title: 'Calculadora de Impuestos & Retenciones',
-      subtitle: 'Estimador fiscal IVA Acreditable vs Trasladado e ISR',
-      description: 'Calculadora especializada para contadores: estimación rápida de IVA acreditable de compras, retenciones de IVA/ISR (6%, 1.25%, RESICO, Personas Morales) y papeles de trabajo.',
+      subtitle: 'Determinación de IVA Acreditable e ISR Retenido',
+      description: 'Calculadora y papel de trabajo corporativo para la determinación de impuestos mensuales, retenciones de IVA/ISR y proyecciones fiscales.',
+      badge: '💰 Papel de Trabajo',
+      normativa: 'Art. 1-A Ley del IVA & Art. 106 Ley del ISR 2026',
       icon: Calculator,
-      badge: '💰 Calculadora',
-      badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-      gradient: 'from-amber-500 to-orange-600',
-      stats: 'Cálculo RESICO y PM 2026',
-      features: [
-        'Determinación de IVA neto a pagar o a favor',
-        'Desglose de retenciones de ISR e IVA',
-        'Papel de trabajo para declaración mensual',
-        'Simulador de coeficientes de utilidad'
+      stats: 'Tarifas 2026 Integradas',
+      entradas: [
+        'Base gravable / Subtotal acumulado',
+        'Tasa de IVA aplicable (16%, 8%, 0%)',
+        'Régimen fiscal del prestador (RESICO, PM, PF)'
       ],
-      primaryAction: 'Calcular Impuestos'
+      salidas: [
+        'Papel de trabajo para pago provisional',
+        'Desglose de IVA neto a pagar o a favor',
+        'Resumen de retenciones a enterar al SAT'
+      ],
+      funcionesClave: [
+        'Cálculo automático de retención 6% IVA',
+        'Retención ISR RESICO (1.25%) y Honorarios (10%)',
+        'Papel de trabajo listo para copiar',
+        'Soporte para tasa general y zona fronteriza'
+      ],
+      features: [
+        'Determinación de IVA neto y retenciones',
+        'Soporte RESICO (1.25%) y Honorarios (10%)',
+        'Papel de trabajo exportable para declaración'
+      ]
     },
     {
-      id: 'proveedores' as ModuleId,
+      id: 'proveedores',
       category: 'reportes',
       title: 'Directorio de Proveedores & Control CXP',
-      subtitle: 'Gestión fiscal de cuentas por pagar y volumen de compras',
-      description: 'Directorio consolidado de proveedores con RFC validado, historial acumulado de compras, saldos conciliados y monitoreo de proveedores con mayor volumen de facturación.',
+      subtitle: 'Gestión Institucional de Cuentas por Pagar',
+      description: 'Expediente consolidado de proveedores registrados con seguimiento de volumen acumulado de facturación, estado de cuenta y estatus de conciliación.',
+      badge: '💼 Cuentas por Pagar',
+      normativa: 'Control Interno & Contabilidad Electrónica',
       icon: Building2,
-      badge: '💼 CXP',
-      badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
-      gradient: 'from-purple-600 to-violet-600',
-      stats: `${suppliersCount} Proveedores registrados`,
-      features: [
-        'Directorio completo con RFC y Razón Social',
-        'Ranking de volumen acumulado de facturación',
-        'Estado de cuenta y conciliación individual',
-        'Validación de domicilio fiscal y régimen'
+      stats: `${suppliersCount} Proveedores activos`,
+      entradas: [
+        'Registros fiscales de proveedores',
+        'Historial de facturas recibidas',
+        'Auxiliares de cuentas por pagar'
       ],
-      primaryAction: 'Ver Proveedores'
+      salidas: [
+        'Ranking de compras por proveedor',
+        'Estado de conciliación individual',
+        'Reporte consolidado de facturación acumulada'
+      ],
+      funcionesClave: [
+        'Directorio completo con RFC y Razón Social',
+        'Filtrado instantáneo en módulo de conciliación',
+        'Monitoreo de proveedores con mayor volumen',
+        'Validación de consistencia fiscal de emisor'
+      ],
+      features: [
+        'Directorio centralizado con RFC validado',
+        'Ranking de facturación acumulada',
+        'Filtrado directo en módulo de conciliación'
+      ]
     },
     {
-      id: 'utilidades' as ModuleId,
+      id: 'utilidades',
       category: 'utilidades',
       title: 'Utilidades Financieras & INPC / Banxico',
-      subtitle: 'Recargos, Tipo de Cambio y Validador RFC/CURP',
-      description: 'Herramientas esenciales del contador público: tabla de actualización por recargos según el INPC, tipo de cambio oficial del Banco de México (Banxico/DOF) y generador/validador de RFC y CURP.',
-      icon: Wrench,
+      subtitle: 'Herramientas de Actualización y Recargos Fiscales',
+      description: 'Módulo de utilidades contables para el cálculo de recargos por extemporaneidad según el CFF, consulta de Tipo de Cambio oficial Banxico y validador de sintaxis RFC.',
       badge: '🛠️ Utilidades',
-      badgeColor: 'bg-slate-100 text-slate-800 border-slate-300',
-      gradient: 'from-slate-700 to-slate-900',
-      stats: 'Banxico API / INPC Actualizado',
-      features: [
-        'Calculadora de recargos y actualización (INPC)',
-        'Tipo de cambio oficial Banxico USD/EUR',
-        'Validador de estructura de RFC y homoclave',
-        'Convertidor de monedas para facturación'
+      normativa: 'Art. 21 Código Fiscal de la Federación (Recargos)',
+      icon: Wrench,
+      stats: 'Indicadores Banxico / UMA',
+      entradas: [
+        'Monto contributivo extemporáneo',
+        'Meses de mora / extemporaneidad',
+        'Estructura de RFC / Curp a evaluar'
       ],
-      primaryAction: 'Abrir Herramientas'
+      salidas: [
+        'Cálculo de recargos y actualización INPC',
+        'Valor de tipo de cambio USD/EUR del día',
+        'Dictamen de validez de RFC y homoclave'
+      ],
+      funcionesClave: [
+        'Calculadora de recargos CFF a tasa del 1.47%',
+        'Tipo de cambio oficial Banco de México (FIX)',
+        'Validador de sintaxis de RFC para PF y PM',
+        'Consulta de valor diario/mensual de UMA'
+      ],
+      features: [
+        'Calculadora de recargos CFF 1.47%',
+        'Tipo de cambio oficial Banxico USD / EUR',
+        'Validador de estructura de RFC y Homoclave'
+      ]
     }
   ];
 
-  const filteredModules = modules.filter(mod => {
+  const filteredModules = modulesData.filter(mod => {
     const matchesCategory = selectedCategory === 'todos' || mod.category === selectedCategory;
     const matchesSearch =
       mod.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -148,88 +217,77 @@ export const AccountantHub: React.FC<AccountantHubProps> = ({
   });
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-6 pb-10">
       
-      {/* Banner de Bienvenida del Contador */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-slate-700">
-        
-        {/* Glow & Decorative elements */}
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 -mb-10 w-60 h-60 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex flex-col gap-2 max-w-2xl">
+      {/* Institutional Header Banner */}
+      <div className="bg-slate-900 rounded-2xl p-6 sm:p-7 text-white border border-slate-800 shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex flex-col gap-1.5 max-w-2xl">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                Portal del Contador Publico & Auditor
+              <span className="px-2.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[11px] font-bold uppercase tracking-wider">
+                Grupo MV • Portal Contable
               </span>
-              <span className="text-xs text-slate-400 font-medium">
-                Periodo Fiscal 2026
+              <span className="text-[11px] text-slate-400 font-medium">
+                Ejercicio Fiscal 2026
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              Centro de Control Contable & Conciliación
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+              Centro de Control del Contador & Módulos Institucionales
             </h2>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Hola, <span className="font-bold text-white">{currentUser?.name || 'Contador'}</span>. Selecciona la herramienta o módulo fiscal en el que deseas trabajar hoy. Todas tus fuentes de datos y ERP Grupo MV están sincronizados.
+            <p className="text-slate-300 text-xs leading-relaxed">
+              Panel corporativo de herramientas para contabilidad general, auditoría fiscal de compras y conciliación ERP.
             </p>
           </div>
 
-          {/* Quick Metrics Badge */}
-          <div className="flex flex-wrap md:flex-col gap-3 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 shrink-0">
+          {/* Quick Metrics Bar */}
+          <div className="flex items-center gap-4 bg-slate-800/80 px-4 py-3 rounded-xl border border-slate-700/80 text-xs shrink-0">
             <div className="flex items-center gap-2">
-              <div className={`w-2.5 h-2.5 rounded-full ${erpConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-              <span className="text-xs text-slate-300">Conexión ERP Grupo MV:</span>
-              <span className="text-xs font-bold text-emerald-300">{erpConnected ? 'En línea' : 'Standby'}</span>
+              <div className={`w-2.5 h-2.5 rounded-full ${erpConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span className="text-slate-300">Conexión ERP:</span>
+              <span className="font-bold text-emerald-400">{erpConnected ? 'En Línea' : 'Standby'}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs text-slate-300">Compras ERP:</span>
-              <span className="text-xs font-black text-white">{erpCount} registros</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-teal-400" />
-              <span className="text-xs text-slate-300">Proveedores:</span>
-              <span className="text-xs font-black text-white">{suppliersCount} registrados</span>
+            <div className="h-4 w-px bg-slate-700" />
+            <div className="flex items-center gap-1.5 text-slate-300">
+              <Database className="w-3.5 h-3.5 text-slate-400" />
+              <span>Compras: <strong className="text-white">{erpCount}</strong></span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Barra de Búsqueda y Categorías */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+      {/* Control Bar: Search & Categories */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
         
-        {/* Input de Búsqueda */}
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        {/* Search */}
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Buscar herramienta, módulo o función..."
+            placeholder="Filtrar módulos por nombre o función..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
           />
         </div>
 
-        {/* Filtro por Categorías */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        {/* Categories */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
           {[
-            { id: 'todos', label: '🌐 Todos los Módulos' },
-            { id: 'conciliacion', label: '🔄 Conciliación' },
-            { id: 'fiscal', label: '🛡️ Fiscal & SAT' },
-            { id: 'impuestos', label: '💰 Impuestos' },
-            { id: 'reportes', label: '💼 Proveedores' },
-            { id: 'utilidades', label: '🛠️ Utilidades' }
+            { id: 'todos', label: 'Todos los Módulos' },
+            { id: 'conciliacion', label: 'Conciliación' },
+            { id: 'fiscal', label: 'Fiscal & SAT' },
+            { id: 'impuestos', label: 'Impuestos' },
+            { id: 'reportes', label: 'Proveedores' },
+            { id: 'utilidades', label: 'Utilidades' }
           ].map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedCategory === cat.id
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               {cat.label}
@@ -238,88 +296,84 @@ export const AccountantHub: React.FC<AccountantHubProps> = ({
         </div>
       </div>
 
-      {/* Grid de Módulos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Grid of Institutional Module Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredModules.map((mod) => {
           const Icon = mod.icon;
 
           return (
             <div
               key={mod.id}
-              onClick={() => onSelectModule(mod.id)}
-              className="group relative bg-white rounded-3xl border border-slate-200 p-6 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden"
+              className="bg-white rounded-2xl border border-slate-300 p-5 shadow-xs hover:border-slate-400 transition-all flex flex-col justify-between"
             >
-              {/* Subtle Gradient Line Top */}
-              <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${mod.gradient}`} />
-
               <div>
-                {/* Header de Card */}
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className={`p-3.5 rounded-2xl bg-gradient-to-tr ${mod.gradient} text-white shadow-md group-hover:scale-105 transition-transform duration-300`}>
-                    <Icon className="w-6 h-6 text-white" />
+                {/* Header Card */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="p-2.5 rounded-xl bg-slate-900 text-white">
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-black border ${mod.badgeColor}`}>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-slate-100 text-slate-800 border border-slate-200">
                     {mod.badge}
                   </span>
                 </div>
 
-                {/* Título & Subtítulo */}
-                <h3 className="text-lg font-black text-slate-900 group-hover:text-emerald-700 transition-colors tracking-tight mb-1">
+                {/* Title & Subtitle */}
+                <h3 className="text-base font-black text-slate-900 tracking-tight mb-0.5">
                   {mod.title}
                 </h3>
-                <p className="text-xs font-bold text-slate-500 mb-3">
+                <p className="text-[11px] font-bold text-slate-500 mb-2">
                   {mod.subtitle}
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed mb-4">
                   {mod.description}
                 </p>
 
-                {/* Lista de Funciones */}
-                <ul className="flex flex-col gap-2 mb-6 pt-3 border-t border-slate-100">
+                {/* Features List */}
+                <ul className="flex flex-col gap-1.5 mb-5 pt-3 border-t border-slate-100">
                   {mod.features.map((feat, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-xs text-slate-700 font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <li key={idx} className="flex items-center gap-2 text-[11px] text-slate-700">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                       <span>{feat}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Action & Stats Footer */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-                <span className="text-[11px] font-bold text-slate-400 truncate">
-                  {mod.stats}
-                </span>
-                <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 group-hover:bg-emerald-600 text-white text-xs font-extrabold transition-colors shadow-xs shrink-0">
-                  <span>{mod.primaryAction}</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              {/* Card Footer with TWO BUTTONS */}
+              <div className="pt-3 border-t border-slate-200 flex items-center gap-2">
+                
+                {/* Button 1: Ver Detalles (Dialog) */}
+                <button
+                  onClick={() => setSelectedDetailModal(mod)}
+                  className="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer border border-slate-300"
+                  title="Ver descripción detallada y marco técnico del módulo"
+                >
+                  <Info className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Ver detalles</span>
+                </button>
+
+                {/* Button 2: Abrir Módulo */}
+                <button
+                  onClick={() => onSelectModule(mod.id)}
+                  className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <span>Abrir Módulo</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
+
             </div>
           );
         })}
       </div>
 
-      {filteredModules.length === 0 && (
-        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200">
-          <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
-          <h4 className="text-base font-bold text-slate-900 mb-1">No se encontraron módulos</h4>
-          <p className="text-xs text-slate-500">Prueba con otra palabra clave en la búsqueda o borra los filtros.</p>
-        </div>
-      )}
-
-      {/* Footer Info / Soporte */}
-      <div className="bg-slate-100 rounded-2xl p-4 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
-        <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-emerald-600" />
-          <span><strong>Super App Contable Grupo MV v2.5</strong> — Diseñado para Contabilidad General, Auditoría Fiscal y Cuentas por Pagar.</span>
-        </div>
-        <div className="flex items-center gap-3 font-semibold text-slate-700">
-          <span>Soporte Técnico</span>
-          <span>•</span>
-          <span>Guía de Uso</span>
-        </div>
-      </div>
+      {/* Modal Dialog Component */}
+      <ModuleDetailsModal
+        isOpen={Boolean(selectedDetailModal)}
+        onClose={() => setSelectedDetailModal(null)}
+        moduleDetail={selectedDetailModal}
+        onConfirmOpenModule={(id) => onSelectModule(id)}
+      />
 
     </div>
   );
