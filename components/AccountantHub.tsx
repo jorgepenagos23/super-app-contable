@@ -3,7 +3,7 @@
 import React from 'react';
 import { ArrowRight, ShoppingCart, TrendingUp, ShieldAlert } from 'lucide-react';
 
-export type ModuleId = 'hub' | 'conciliacion' | 'ingresos' | 'auditoria_sat';
+export type ModuleId = 'hub' | 'conciliacion' | 'ingresos' | 'auditoria_sat' | 'impuestos' | 'proveedores' | 'utilidades';
 
 interface AccountantHubProps {
   onSelectModule: (moduleId: ModuleId) => void;

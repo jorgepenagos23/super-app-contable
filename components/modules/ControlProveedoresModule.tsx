@@ -33,7 +33,7 @@ export const ControlProveedoresModule: React.FC<ControlProveedoresModuleProps> =
     p.rfc.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalFacturas = availableSuppliers.reduce((acc, curr) => acc + curr.count, 0);
+  const totalFacturas = availableSuppliers.reduce((acc, curr) => acc + (curr.count || 0), 0);
 
   return (
     <div className="flex flex-col gap-6">
@@ -130,7 +130,7 @@ export const ControlProveedoresModule: React.FC<ControlProveedoresModuleProps> =
                   <td className="p-3.5 font-bold text-slate-400">{index + 1}</td>
                   <td className="p-3.5 font-bold text-slate-900">{prov.nombre}</td>
                   <td className="p-3.5 font-mono text-slate-600">{prov.rfc || 'NO REGISTRADO'}</td>
-                  <td className="p-3.5 text-center font-black text-purple-700">{prov.count} facturas</td>
+                  <td className="p-3.5 text-center font-black text-purple-700">{prov.count || 0} facturas</td>
                   <td className="p-3.5 text-right">
                     <button
                       onClick={() => onSelectProveedorForReconciliation(prov.rfc || prov.nombre)}

@@ -19,7 +19,7 @@ import {
 interface InvoiceAuditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  factura: ItemConciliado | null;
+  factura: any;
   toleranciaParametro?: number; // Tolerancia en Pesos ($), defecto 1.00 MXN
 }
 

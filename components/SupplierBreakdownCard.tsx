@@ -22,17 +22,19 @@ interface SupplierGroup {
 interface SupplierBreakdownCardProps {
   conciliadas: ItemConciliado[];
   montoTotalConciliadas: number;
+  onOpenSupplierConfig?: (rfcOrNombre: string) => void;
 }
 
 export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
   conciliadas,
   montoTotalConciliadas,
+  onOpenSupplierConfig,
 }) => {
   const [expandedSupplier, setExpandedSupplier] = useState<string | null>(null);
   const [selectedAuditInvoice, setSelectedAuditInvoice] = useState<ItemConciliado | null>(null);
   const [editingSupplierKey, setEditingSupplierKey] = useState<string | null>(null);
 
-  const { getProfile, saveProfile, deleteProfile } = useSupplierProfiles();
+  const { getProfile, saveProfile, removeProfile: deleteProfile } = useSupplierProfiles();
 
   if (!conciliadas || conciliadas.length === 0) return null;
 

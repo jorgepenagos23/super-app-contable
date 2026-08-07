@@ -94,3 +94,15 @@ export interface ResultadoConciliacion {
   sobrantesERP: ItemSobranteERP[];
   metricas: MetricasConciliacion;
 }
+
+export interface ProveedorResumen {
+  nombre: string;
+  rfc: string;
+  count?: number;
+  facturasCount?: number;
+  montoTotalSAT?: number;
+  montoTotalERP?: number;
+  diferenciaTotal?: number;
+  porcentajeDelTotal?: number;
+}
+

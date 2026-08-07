@@ -194,7 +194,7 @@ export default function Home() {
                       uploadSatFile(file);
                     }}
                     fileName={fileName}
-                    fileError={fileError}
+                    fileError={fileError || undefined}
                   />
                 </div>
 
