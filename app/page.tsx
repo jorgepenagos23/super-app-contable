@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useReconciliation } from '@/hooks/useReconciliation';
 import { useAuth } from '@/context/AuthContext';
 import { useSettings } from '@/hooks/useSettings';
+import { useSupplierProfiles } from '@/hooks/useSupplierProfiles';
 import { Navbar } from '@/components/Navbar';
 import { FileUploadZone } from '@/components/FileUploadZone';
 import { MetricsOverview } from '@/components/MetricsOverview';
@@ -12,6 +13,7 @@ import { SupplierBreakdownCard } from '@/components/SupplierBreakdownCard';
 import { UserManagementModal } from '@/components/UserManagementModal';
 import { ApiCredentialsModal } from '@/components/ApiCredentialsModal';
 import { SettingsModal } from '@/components/SettingsModal';
+import { SupplierConfigModal } from '@/components/SupplierConfigModal';
 import { AccountantHub, ModuleId } from '@/components/AccountantHub';
 
 import {
@@ -24,7 +26,9 @@ import {
   Calendar,
   Loader2,
   Sliders,
-  ArrowLeft
+  ArrowLeft,
+  Building2,
+  Settings
 } from 'lucide-react';
 
 export default function Home() {
@@ -32,6 +36,8 @@ export default function Home() {
   const [activeModule, setActiveModule] = useState<ModuleId>('conciliacion');
   
   const { toleranciaDiferencia, filtroProveedorRFC, updateSettings } = useSettings();
+  const { saveProfile, getProfile, removeProfile } = useSupplierProfiles();
+
   const {
     satFile,
     setSatFile,
@@ -59,6 +65,8 @@ export default function Home() {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isApiModalOpen, setIsApiModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isSupplierConfigModalOpen, setIsSupplierConfigModalOpen] = useState(false);
+  const [selectedSupplierForConfig, setSelectedSupplierForConfig] = useState('');
 
   const isSuperAdmin = currentUser?.role === 'admin' || currentUser?.email === 'jorge.ramirez@grupomv.mx';
 
@@ -67,6 +75,11 @@ export default function Home() {
   const handleStartReconciliation = (overrideProveedor?: string) => {
     const provToUse = overrideProveedor !== undefined ? overrideProveedor : filtroProveedorRFC;
     startReconciliation(undefined, provToUse);
+  };
+
+  const handleOpenSupplierConfig = (rfcOrNombre: string) => {
+    setSelectedSupplierForConfig(rfcOrNombre);
+    setIsSupplierConfigModalOpen(true);
   };
 
   return (
@@ -103,6 +116,17 @@ export default function Home() {
         }}
       />
 
+      {/* Modal de Configuración y Logotipo por Proveedor */}
+      <SupplierConfigModal
+        isOpen={isSupplierConfigModalOpen}
+        onClose={() => setIsSupplierConfigModalOpen(false)}
+        opcionesProveedores={availableSuppliers}
+        initialSupplier={selectedSupplierForConfig}
+        onSaveProfile={saveProfile}
+        getProfile={getProfile}
+        onDeleteProfile={removeProfile}
+      />
+
       {isSuperAdmin && (
         <ApiCredentialsModal
           isOpen={isApiModalOpen}
@@ -115,7 +139,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:lg:px-8 py-6 flex flex-col gap-5">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-5">
         
         {/* HUB INICIAL CON SOLO EL MODULO DE CONCILIACIÓN PARAL vs SAT */}
         {activeModule === 'hub' && (
@@ -184,6 +208,16 @@ export default function Home() {
                       </select>
                     </div>
                   )}
+
+                  {/* Botón Configurar Perfil de Proveedores */}
+                  <button
+                    onClick={() => handleOpenSupplierConfig(filtroProveedorRFC || '')}
+                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-300"
+                    title="Configurar Logotipos, Marca y Datos Fiscales por Proveedor"
+                  >
+                    <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Perfil Proveedor</span>
+                  </button>
 
                   {/* Botón Parámetros / Ajustes */}
                   <button
@@ -356,12 +390,9 @@ export default function Home() {
               <>
                 {/* Desglose resumido por Proveedor */}
                 <SupplierBreakdownCard
-                  proveedores={availableSuppliers}
-                  filtroActual={filtroProveedorRFC}
-                  onSelectProveedor={(rfcOrNombre) => {
-                    updateSettings({ filtroProveedorRFC: rfcOrNombre });
-                    startReconciliation(undefined, rfcOrNombre);
-                  }}
+                  conciliadas={resultado.conciliadas}
+                  montoTotalConciliadas={resultado.metricas.montoConciliadas}
+                  onOpenSupplierConfig={handleOpenSupplierConfig}
                 />
 
                 {/* Métricas Globales */}

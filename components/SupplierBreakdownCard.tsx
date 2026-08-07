@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import { ItemConciliado } from '@/types/reconciliation';
 import { InvoiceAuditModal } from './InvoiceAuditModal';
-import { Building2, ChevronDown, ChevronUp, FileCheck, Eye } from 'lucide-react';
+import { useSupplierProfiles, SupplierProfile } from '@/hooks/useSupplierProfiles';
+import { SupplierConfigModal } from './SupplierConfigModal';
+import { Building2, ChevronDown, ChevronUp, FileCheck, Eye, Settings, Building } from 'lucide-react';
 
 interface SupplierGroup {
   nombreEmisor: string;
@@ -19,14 +21,17 @@ interface SupplierGroup {
 interface SupplierBreakdownCardProps {
   conciliadas: ItemConciliado[];
   montoTotalConciliadas: number;
+  onOpenSupplierConfig?: (rfcOrNombre: string) => void;
 }
 
 export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
   conciliadas,
   montoTotalConciliadas,
+  onOpenSupplierConfig
 }) => {
   const [expandedSupplier, setExpandedSupplier] = useState<string | null>(null);
   const [selectedAuditInvoice, setSelectedAuditInvoice] = useState<ItemConciliado | null>(null);
+  const { getProfile } = useSupplierProfiles();
 
   if (!conciliadas || conciliadas.length === 0) return null;
 
@@ -57,7 +62,6 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
     }
   }
 
-  // Convertir a Array y calcular porcentajes, ordenando de MAYOR A MENOR MONTO ($)
   const proveedoresList = Array.from(mapProveedores.values()).map((prov) => {
     const porcentaje = montoTotalConciliadas > 0
       ? (prov.montoTotalSAT / montoTotalConciliadas) * 100
@@ -94,7 +98,7 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
             Desglose de Compras Conciliadas por Proveedor ($ Pesos)
           </h3>
           <p className="text-xs text-slate-600 mt-0.5">
-            Haga clic en cualquier factura para auditar el comparativo detallado de compras SAT vs FROG ERP y sus productos.
+            Personaliza el logotipo, la marca y los parámetros de cada proveedor haciendo clic en el icono de configuración ⚙️.
           </p>
         </div>
 
@@ -110,34 +114,47 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
       <div className="space-y-3">
         {proveedoresList.map((prov, index) => {
           const isExpanded = expandedSupplier === prov.rfcEmisor;
+          const profile = getProfile(prov.rfcEmisor || prov.nombreEmisor);
 
           return (
             <div
               key={prov.rfcEmisor || index}
-              className="border border-slate-200 rounded-2xl overflow-hidden transition-all bg-white hover:border-emerald-300"
+              className="border border-slate-200 rounded-2xl overflow-hidden transition-all bg-white hover:border-emerald-300 shadow-xs"
             >
               {/* Fila del Proveedor */}
-              <div
-                onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
-                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/80 transition-all"
-              >
-                <div className="flex items-start gap-3 min-w-0 flex-1">
-                  <span className="w-7 h-7 rounded-xl bg-slate-100 font-black text-slate-700 text-xs flex items-center justify-center shrink-0 border border-slate-300">
-                    #{index + 1}
-                  </span>
+              <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                
+                {/* Logo & Identificación */}
+                <div
+                  onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
+                  className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"
+                >
+                  {/* Logo Personalizado o Badge por Defecto */}
+                  <div className="relative w-10 h-10 rounded-xl bg-slate-900 text-white font-black text-xs flex items-center justify-center shrink-0 border border-slate-700 overflow-hidden shadow-xs">
+                    {profile?.logoUrl ? (
+                      <img src={profile.logoUrl} alt={prov.nombreEmisor} className="w-full h-full object-contain p-0.5 bg-white" />
+                    ) : (
+                      <span>{prov.nombreEmisor.slice(0, 2).toUpperCase()}</span>
+                    )}
+                  </div>
 
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-extrabold text-sm text-slate-900 truncate">
                         {prov.nombreEmisor}
                       </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black bg-slate-100 text-slate-600 border border-slate-200">
-                        {prov.rfcEmisor}
+                      <span className="px-2 py-0.5 rounded text-[10px] font-black bg-slate-100 text-slate-600 border border-slate-200 font-mono">
+                        {prov.rfcEmisor || 'Sin RFC'}
                       </span>
+                      {profile?.regimenFiscal && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-blue-800 border border-blue-200">
+                          SAT: {profile.regimenFiscal}
+                        </span>
+                      )}
                     </div>
 
-                    <div className="flex items-center gap-3 mt-2">
-                      <div className="w-36 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <div className="w-32 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
                         <div
                           className="bg-emerald-600 h-2 rounded-full transition-all"
                           style={{ width: `${Math.min(100, prov.porcentajeDelTotal)}%` }}
@@ -150,7 +167,8 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 justify-between sm:justify-end shrink-0">
+                {/* Acciones y Métricas del Proveedor */}
+                <div className="flex items-center gap-4 justify-between sm:justify-end shrink-0">
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-slate-400 uppercase block">Facturas</span>
                     <span className="text-xs font-black text-slate-700 flex items-center gap-1 justify-end">
@@ -166,9 +184,27 @@ export const SupplierBreakdownCard: React.FC<SupplierBreakdownCardProps> = ({
                     </span>
                   </div>
 
-                  <div className="p-1 rounded-lg bg-slate-100 text-slate-500">
+                  {/* Botón Configurar Proveedor */}
+                  {onOpenSupplierConfig && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenSupplierConfig(prov.rfcEmisor || prov.nombreEmisor);
+                      }}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all cursor-pointer border border-slate-300"
+                      title="Configurar Logotipo, Datos Fiscales y Marca del Proveedor"
+                    >
+                      <Settings className="w-4 h-4 text-slate-700" />
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => setExpandedSupplier(isExpanded ? null : prov.rfcEmisor)}
+                    className="p-2 rounded-xl bg-slate-100 text-slate-500 cursor-pointer hover:bg-slate-200"
+                  >
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </div>
+                  </button>
                 </div>
               </div>
 
